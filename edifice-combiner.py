@@ -4,20 +4,15 @@ from typing import List, Tuple
 from PIL import Image
 from PIL import ImageColor
 
-src_px = (6732, 5256)
-src_dims = (10, 5)
+src_px = (3366, 2102)
+src_dims = (5, 2)
 card_px = tuple(px // dim for (px, dim) in zip(src_px, src_dims))
 dst_dims = (4, 2)
 
-# subimg = src.crop(tuple(round(x) for x in (3 * card_fpx[0], 1 * card_fpx[1], 4 * card_fpx[0], 2 * card_fpx[1])))  # box coords: (x1, y1, x2, y2)
-# subimg.save("subimage.jpg")
 dx, dy = dst_dims
 cx, cy = card_px
 dst_px = (dx * cx, dy * cy)
 dst_img = Image.new("RGB", dst_px, color="white")
-
-
-print(f"{card_px=}")
 
 
 def moddiv(a, b):
@@ -25,31 +20,26 @@ def moddiv(a, b):
     return (y, x)
 
 
-def is_red_triangle_card(src_img, card_idxs) -> float:
-    red = ImageColor.getrgb("#d22147")
-    expect_red_pxs = [(638, 991), (628, 997), (646, 997), (638, 979)]
-    expect_not_red_pxs = [(624, 928), (652, 982), (638, 1006)]
+def is_non_blank_card(src_img, card_idxs) -> float:
+    red = ImageColor.getrgb("#FFFFFF")
+    expected_white_pixel_coordinates = [(100, 100), (500, 100), (100, 500), (500, 500)]
     w, h = card_px
     i, j = card_idxs
 
-    def count_red_pixels(offset_pxs: List[Tuple[int]]):
+    def count_white_pixels(offset_pxs: List[Tuple[int]]):
         count = 0
         for rx, ry in offset_pxs:
             probe_px = (rx + i * w, ry + j * h)
             pixel_value = src_img.getpixel(probe_px)
-            distance_from_red_squared = sum(
+            distance_from_white_squared = sum(
                 (c1 - c0) ** 2 for (c1, c0) in zip(pixel_value, red)
             )
-            if distance_from_red_squared <= 300:
+            if distance_from_white_squared <= 300:
                 count += 1
         return count
 
-    confidence = (
-        count_red_pixels(expect_red_pxs) + 3 - count_red_pixels(expect_not_red_pxs)
-    )
-    if confidence == 6 or confidence == 5:
-        print(f"unsure about {card_idxs=} - confidence {confidence}/7 this card is red")
-    return confidence >= 5
+    confidence = count_white_pixels(expected_white_pixel_coordinates)
+    return confidence < len(expected_white_pixel_coordinates)
 
 
 def requilt():
@@ -57,18 +47,18 @@ def requilt():
     dst_file_idx = 0
 
     def write_page():
-        fname = f"denizens-{dst_file_idx:02}.png"
+        fname = f"edifices-{dst_file_idx:02}.png"
         print("write_page()")
         dst_img.save(fname)
         dst_img.paste("white", (0, 0, dst_img.width, dst_img.height))
 
-    for path in glob.glob("../oath-res/Denizens*.jpg"):
+    for path in glob.glob("../oath-res/Edifice*.jpg"):
         print(f"{path=}")
         with Image.open(path) as src_img:
             for src_idxs in (
                 (i, j) for j in range(src_dims[1]) for i in range(src_dims[0])
             ):
-                if is_red_triangle_card(src_img, src_idxs):
+                if is_non_blank_card(src_img, src_idxs):
                     copy_subimage(src_img, src_idxs, moddiv(dst_idx, dst_dims[0]))
                     dst_idx += 1
                     if dst_idx == math.prod(dst_dims):
