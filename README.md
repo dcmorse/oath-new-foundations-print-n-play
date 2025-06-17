@@ -11,9 +11,10 @@ blah blah blah
 # Run This
 
 ```
-python red-triangle-filter.py 
+python denizen_combiner.py 
 for f in denizens*.png ; do convert $f -rotate 90 rot-$f ; done
 img2pdf --pagesize letter --imgsize 7inx9in --fit shrink -o denizens.pdf rot-denizens-*.png
+python edifice_combiner.py
 for f in edifices*.png ; do convert $f -rotate 90 rot-$f ; done
 img2pdf --pagesize letter --imgsize 7inx9in --fit shrink -o edifices.pdf rot-edifices-*.png
 ```

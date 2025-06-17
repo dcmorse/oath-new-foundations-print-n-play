@@ -3,6 +3,7 @@ import glob
 from typing import List, Tuple
 from PIL import Image
 from PIL import ImageColor
+from edifice_combiner import is_non_blank_card
 
 src_px = (6732, 5256)
 src_dims = (10, 5)
@@ -25,7 +26,20 @@ def moddiv(a, b):
     return (y, x)
 
 
-def is_red_triangle_card(src_img, card_idxs) -> float:
+def is_card_to_print(src_img, card_idxs) -> bool:
+    return is_new_foundations_card(
+        src_img, card_idxs
+    ) or is_revised_base_card_with_red_triangle(src_img, card_idxs)
+
+
+def is_new_foundations_card(src_img, card_idxs) -> bool:
+    i, j = card_idxs
+    if (i >= 3 and j == 3) or (i < 3 and j == 4):
+        return is_non_blank_card(src_img, card_idxs)
+    return False
+
+
+def is_revised_base_card_with_red_triangle(src_img, card_idxs) -> bool:
     red = ImageColor.getrgb("#d22147")
     expect_red_pxs = [(638, 991), (628, 997), (646, 997), (638, 979)]
     expect_not_red_pxs = [(624, 928), (652, 982), (638, 1006)]
@@ -68,7 +82,7 @@ def requilt():
             for src_idxs in (
                 (i, j) for j in range(src_dims[1]) for i in range(src_dims[0])
             ):
-                if is_red_triangle_card(src_img, src_idxs):
+                if is_card_to_print(src_img, src_idxs):
                     copy_subimage(src_img, src_idxs, moddiv(dst_idx, dst_dims[0]))
                     dst_idx += 1
                     if dst_idx == math.prod(dst_dims):
