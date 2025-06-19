@@ -18,4 +18,7 @@ python edifice_combiner.py
 for f in edifices*.png ; do convert $f -rotate 90 rot-$f ; done
 img2pdf --pagesize letter --imgsize 7inx9in --fit shrink -o edifices.pdf rot-edifices-*.png
 python site_renamer.py
+python tiler.py 2 2 site-\*.jpg sites-\*.png
+for f in sites-*.png ; do convert $f -rotate 90 rot-$f ; done
+img2pdf --pagesize letter --imgsize 7inx9in --fit shrink -o sites.pdf rot-sites-*.png
 ```
