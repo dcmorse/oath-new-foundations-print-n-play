@@ -32,12 +32,12 @@ def quilt(tiling: Tuple[int, int], src_glob: str, dst_glob: str):
         output_img.save(dst_glob.replace("*", f"{batch_idx:02d}"))
 
 
-# python tiler.py 2 2 site-\*.jpg sites-\*.jpg
+# python tile.py 2 2 site-\*.jpg sites-\*.jpg
 if __name__ == "__main__":
     if len(argv) != 5:
         print(
-            "Usage: python tiler.py <width> <height> <input_glob> <output_glob>\n"
-            "Example: python tiler.py 2 2 site-\\*.jpg sites-\\*.jpg"
+            "Usage: python tile.py <width> <height> <input_glob> <output_glob>\n"
+            "Example: python tile.py 2 2 site-\\*.jpg sites-\\*.jpg"
             "Note: escape asterisk with backslash in shell (e.g., site-\\*.jpg)\n"
         )
         exit(1)

@@ -71,12 +71,12 @@ def requilt():
     dst_file_idx = 0
 
     def write_page():
-        fname = f"denizens-{dst_file_idx:02}.png"
+        fname = f"wip/denizens-{dst_file_idx:02}.png"
         print("write_page()")
         dst_img.save(fname)
         dst_img.paste("white", (0, 0, dst_img.width, dst_img.height))
 
-    for path in glob.glob("../oath-res/Denizens*.jpg"):
+    for path in glob.glob("input/Denizens*.jpg"):
         print(f"{path=}")
         with Image.open(path) as src_img:
             for src_idxs in (
@@ -104,4 +104,5 @@ def copy_subimage(src_img, src_dim, dst_dim):
     dst_img.paste(clipboard, dst_lurd)
 
 
-requilt()
+if __name__ == "__main__":
+    requilt()

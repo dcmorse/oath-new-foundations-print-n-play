@@ -47,12 +47,12 @@ def requilt():
     dst_file_idx = 0
 
     def write_page():
-        fname = f"edifices-{dst_file_idx:02}.png"
+        fname = f"wip/edifices-{dst_file_idx:02}.png"
         print("write_page()")
         dst_img.save(fname)
         dst_img.paste("white", (0, 0, dst_img.width, dst_img.height))
 
-    for path in glob.glob("../oath-res/Edifice*.jpg"):
+    for path in glob.glob("input/Edifice*.jpg"):
         print(f"{path=}")
         with Image.open(path) as src_img:
             for src_idxs in (
