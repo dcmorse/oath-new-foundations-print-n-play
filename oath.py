@@ -1,7 +1,10 @@
 import argparse
 from typing import Set
+from retile import retile
+import glob
+import subprocess
 
-tasks = set(["denizens", "visions"])
+tasks = set(["denizens", "visions", "edifices"])
 
 
 def do_denizens():
@@ -10,6 +13,37 @@ def do_denizens():
 
 def do_visions():
     print("do_visions stubbed")
+
+
+def do_edifices():
+    retile(
+        (671, 1050),
+        (5, 1),
+        "input/Edifice*.jpg",
+        (4, 2),
+        "wip/edifices-landscape-*.png",
+    )
+    # Rotate all edifices images 90 degrees
+    for landscape_file in glob.glob("wip/edifices-landscape*.png"):
+        portrait_file = landscape_file.replace("-landscape", "-portrait")
+        subprocess.run(
+            ["convert", landscape_file, "-rotate", "90", portrait_file], check=True
+        )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "7inx9in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/edifices.pdf",
+            *sorted(glob.glob("wip/edifices-portrait*.png")),
+        ],
+        check=True,
+    )
 
 
 def main():
