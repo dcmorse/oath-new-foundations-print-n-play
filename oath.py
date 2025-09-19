@@ -4,7 +4,7 @@ from retile import retile
 import glob
 import subprocess
 
-tasks = set(["denizens", "visions", "edifices"])
+tasks = set(["denizens", "visions", "edifices", "banners"])
 
 
 def do_denizens():
@@ -41,6 +41,31 @@ def do_edifices():
             "-o",
             "output/edifices.pdf",
             *sorted(glob.glob("wip/edifices-portrait*.png")),
+        ],
+        check=True,
+    )
+
+
+def do_banners():
+    retile(
+        (1180, 1180),
+        (1, 1),
+        "input/Banner*.jpg",
+        (2, 2),
+        "wip/banners-*.png",
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "6inx6in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/banners.pdf",
+            *sorted(glob.glob("wip/banners-*.png")),
         ],
         check=True,
     )
