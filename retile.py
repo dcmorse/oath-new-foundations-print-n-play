@@ -30,7 +30,18 @@ def load_subimages(
 
 
 def is_blank_image(img: Image.Image) -> bool:
-    return False  # TODO
+    width, height = img.size
+    # sample the middle 75% of the image
+    sample_area = img.crop(
+        (width * 0.125, height * 0.125, width * 0.875, height * 0.875)
+    )
+    extrema = sample_area.getextrema()
+    if isinstance(extrema[0], tuple):
+        # rgb/rgba
+        return all(band[0] == band[1] == 255 for band in extrema[:3])
+    else:
+        # grayscale
+        return extrema[0] == extrema[1] == 255
 
 
 def retile(
