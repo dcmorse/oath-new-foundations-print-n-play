@@ -1,14 +1,43 @@
 import argparse
 from typing import Set
-from retile import retile
+from retile import retile, image_middle_not_all_white
 import glob
 import subprocess
+from denizens import is_card_with_red_triangle
 
-tasks = set(["denizens", "visions", "edifices", "banners", "chronicle-tasks"])
+tasks = set(["banners", "chronicle-tasks", "edifices", "denizens", "visions"])
 
 
 def do_denizens():
-    print("do_denizens stubbed")
+    # 6731 x 5237
+    retile(
+        (673, 1047),
+        (10, 5),
+        "input/Denizens*.jpg",
+        (4, 2),
+        "wip/denizens-landscape-*.png",
+        filter=is_card_with_red_triangle,
+    )
+    for landscape_file in glob.glob("wip/denizens-landscape*.png"):
+        portrait_file = landscape_file.replace("-landscape", "-portrait")
+        subprocess.run(
+            ["convert", landscape_file, "-rotate", "90", portrait_file], check=True
+        )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "7inx9in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/denizens.pdf",
+            *sorted(glob.glob("wip/denizens-portrait*.png")),
+        ],
+        check=True,
+    )
 
 
 def do_visions():
@@ -23,7 +52,6 @@ def do_edifices():
         (4, 2),
         "wip/edifices-landscape-*.png",
     )
-    # Rotate all edifices images 90 degrees
     for landscape_file in glob.glob("wip/edifices-landscape*.png"):
         portrait_file = landscape_file.replace("-landscape", "-portrait")
         subprocess.run(
@@ -74,14 +102,17 @@ def do_banners():
 def do_chronicle_tasks():
     ## input is 2480 x 2835
     # Assuming output is Arcs Tarot size: 4.75 x 2.75 inches
+    subprocess.run("rm -f wip/chronicle-tasks-*.png", shell=True)
     retile(
         (826, 1417),
         (3, 2),
         "input/Chronicle Tasks*.jpg",
         (2, 2),
         "wip/chronicle-tasks-*.png",
+        filter=image_middle_not_all_white,
     )
-
+    if not glob.glob("wip/chronicle-tasks-*.png"):
+        raise RuntimeError("no chronicle tasks generated")
     subprocess.run(
         [
             "img2pdf",
