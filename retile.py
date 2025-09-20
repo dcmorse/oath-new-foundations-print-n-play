@@ -14,34 +14,45 @@ import glob
 # So that's 3 x 4 grid on 8.5 x 11 inch paper.
 
 
+def constant_function(x):
+    return lambda *args, **kwargs: x
+
+
+truly = constant_function(True)
+
+
 def load_subimages(
-    subimg_size: Tuple[int, int], src_grid_dims: Tuple[int, int], src_glob: str
+    subimg_size: Tuple[int, int],
+    src_grid_dims: Tuple[int, int],
+    src_glob: str,
+    *,
+    filter,
 ) -> Generator[List[Image.Image], None, None]:
     w, h = subimg_size
     for filename in sorted(glob.glob(src_glob)):
         src_page_img = Image.open(filename)
         for flat_index in range(math.prod(src_grid_dims)):
             j, i = divmod(flat_index, src_grid_dims[0])
-            subimg = src_page_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
-            if is_blank_image(subimg):
-                # assumes non-blank images start in upper left and go right, then down
-                break
-            yield subimg
+            if filter(src_page_img, subimg_size, (i, j)):
+                yield src_page_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
 
 
-def is_blank_image(img: Image.Image) -> bool:
-    width, height = img.size
-    # sample the middle 75% of the image
-    sample_area = img.crop(
-        (width * 0.125, height * 0.125, width * 0.875, height * 0.875)
+def image_middle_not_all_white(
+    src_page_img: Image.Image, subimg_size: Tuple[int, int], card_idxs: Tuple[int, int]
+) -> bool:
+    """For use with the retile filter argument"""
+    w, h = subimg_size
+    i, j = card_idxs
+    sample_area = src_page_img.crop(
+        ((i + 0.125) * w, (j + 0.125) * h, (i + 0.875) * w, (j + 0.875) * h)
     )
     extrema = sample_area.getextrema()
     if isinstance(extrema[0], tuple):
-        # rgb/rgba
-        return all(band[0] == band[1] == 255 for band in extrema[:3])
+        # rgb/rgba - ignore alpha
+        return not all(band[0] == band[1] == 255 for band in extrema[:3])
     else:
         # grayscale
-        return extrema[0] == extrema[1] == 255
+        return not (extrema[0] == extrema[1] == 255)
 
 
 def retile(
@@ -50,13 +61,19 @@ def retile(
     src_glob: str,
     dst_dims: Tuple[int, int],
     dst_glob: str,
+    *,
+    filter=truly,
 ):
     """Convert a bunch of grids of subimages into a different bunch of grids of subimages,
     with a different number of rows and columns from the source."""
     w, h = subimg_size
     for dst_page_number, subimgs in enumerate(
-        batched(load_subimages(subimg_size, src_dims, src_glob), math.prod(dst_dims))
+        batched(
+            load_subimages(subimg_size, src_dims, src_glob, filter=filter),
+            math.prod(dst_dims),
+        )
     ):
+        print(f"writing {dst_page_number=}")
         n, m = dst_dims
         output_img = Image.new("RGB", (n * w, m * h), "white")
         for i, subimg in enumerate(subimgs):
@@ -64,31 +81,3 @@ def retile(
             y = (i // n) * h
             output_img.paste(subimg, (x, y))
         output_img.save(dst_glob.replace("*", f"{dst_page_number:02d}"))
-
-
-# python tile.py 2 2 site-\*.jpg sites-\*.jpg
-if __name__ == "__main__":
-    if len(argv) != 9:
-        print(
-            "Usage: retile.py <tile_w> <tile_h> <src_w> <src_h> <src_glob> <dst_w> <dst_h> <dst_glob>\n"
-            "Example: python retile.py 1358 1051 1 1 wip/site-\\*.jpg 2 2 wip/sites-\\*.png"
-            "Note: escape asterisk with backslash in shell (e.g., site-\\*.jpg)\n"
-        )
-        exit(1)
-    (
-        subimage_w,
-        subimage_h,
-        src_tiling_cols,
-        src_tiling_rows,
-        src_glob,
-        dst_tiling_cols,
-        dst_tiling_rows,
-        dst_glob,
-    ) = argv[1:9]
-    retile(
-        (int(subimage_w), int(subimage_h)),
-        (int(src_tiling_cols), int(src_tiling_rows)),
-        src_glob,
-        (int(dst_tiling_cols), int(dst_tiling_rows)),
-        dst_glob,
-    )
