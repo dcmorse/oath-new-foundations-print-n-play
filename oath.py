@@ -5,7 +5,17 @@ import glob
 import subprocess
 from denizens import is_denizen_to_print
 
-tasks = set(["banners", "chronicle-tasks", "edifices", "denizens", "visions"])
+tasks = set(
+    [
+        "banners",
+        "chronicle-tasks",
+        "edifices",
+        "denizens",
+        "visions",
+        "foundation-board",
+        "foundations",
+    ]
+)
 
 
 def do_denizens():
@@ -125,6 +135,60 @@ def do_chronicle_tasks():
             "-o",
             "output/chronicle-tasks.pdf",
             *sorted(glob.glob("wip/chronicle-tasks-*.png")),
+        ],
+        check=True,
+    )
+
+
+def do_foundations():
+    # 1181 x 780, 2in x 0.88in?
+    retile(
+        (590, 260),  # (1180/2, 780/3),
+        (2, 3),
+        "input/Foundations *.jpg",
+        (2, 10),
+        "wip/foundations-*.png",
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "4inx9in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/foundations.pdf",
+            *sorted(glob.glob("wip/foundations-*.png")),
+        ],
+        check=True,
+    )
+
+
+def do_foundation_board():
+    subprocess.run(
+        [
+            "convert",
+            "input/Foundation Board.jpg",
+            "-rotate",
+            "90",
+            "wip/foundation-board.png",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "7inx10in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/foundation-board.pdf",
+            "wip/foundation-board.png",
         ],
         check=True,
     )
