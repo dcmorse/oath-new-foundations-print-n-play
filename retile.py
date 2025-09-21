@@ -1,3 +1,4 @@
+from ctypes import Array
 from typing import Generator, List, Tuple
 from PIL import Image
 from sys import argv
@@ -24,12 +25,12 @@ truly = constant_function(True)
 def load_subimages(
     subimg_size: Tuple[int, int],
     src_grid_dims: Tuple[int, int],
-    src_glob: str,
+    src_files: Array[str],
     *,
     filter,
 ) -> Generator[List[Image.Image], None, None]:
     w, h = subimg_size
-    for filename in sorted(glob.glob(src_glob)):
+    for filename in src_files:
         src_page_img = Image.open(filename)
         for flat_index in range(math.prod(src_grid_dims)):
             j, i = divmod(flat_index, src_grid_dims[0])
@@ -58,7 +59,7 @@ def image_middle_not_all_white(
 def retile(
     subimg_size: Tuple[int, int],
     src_dims: Tuple[int, int],
-    src_glob: str,
+    src_files: Array[str],
     dst_dims: Tuple[int, int],
     dst_glob: str,
     *,
@@ -69,7 +70,7 @@ def retile(
     w, h = subimg_size
     for dst_page_number, subimgs in enumerate(
         batched(
-            load_subimages(subimg_size, src_dims, src_glob, filter=filter),
+            load_subimages(subimg_size, src_dims, src_files, filter=filter),
             math.prod(dst_dims),
         )
     ):

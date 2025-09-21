@@ -4,6 +4,7 @@ from retile import retile, image_middle_not_all_white
 import glob
 import subprocess
 from denizens import is_denizen_to_print
+import re
 
 tasks = set(
     [
@@ -23,7 +24,7 @@ def do_denizens():
     retile(
         (673, 1051),
         (10, 5),
-        "input/Denizens*.jpg",
+        sorted(glob.glob("input/Denizens*.jpg")),
         (4, 2),
         "wip/denizens-landscape-*.png",
         filter=is_denizen_to_print,
@@ -58,7 +59,7 @@ def do_edifices():
     retile(
         (671, 1050),
         (5, 1),
-        "input/Edifice*.jpg",
+        sorted(glob.glob("input/Edifice*.jpg")),
         (4, 2),
         "wip/edifices-landscape-*.png",
     )
@@ -85,10 +86,15 @@ def do_edifices():
 
 
 def do_banners():
+    bs = [
+        b
+        for b in glob.glob("input/Banner*.jpg")
+        if not re.search(r"banner.token", b, re.IGNORECASE)
+    ]
     retile(
         (1180, 1180),
         (1, 1),
-        "input/Banner*.jpg",
+        sorted(bs),
         (2, 2),
         "wip/banners-*.png",
     )
@@ -116,7 +122,7 @@ def do_chronicle_tasks():
     retile(
         (826, 1417),
         (3, 2),
-        "input/Chronicle Tasks*.jpg",
+        sorted(glob.glob("input/Chronicle Tasks*.jpg")),
         (2, 2),
         "wip/chronicle-tasks-*.png",
         filter=image_middle_not_all_white,
@@ -145,7 +151,7 @@ def do_foundations():
     retile(
         (590, 260),  # (1180/2, 780/3),
         (2, 3),
-        "input/Foundations *.jpg",
+        sorted(glob.glob("input/Foundations *.jpg")),
         (2, 10),
         "wip/foundations-*.png",
     )
