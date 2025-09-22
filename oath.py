@@ -10,6 +10,7 @@ from typing import Iterable
 tasks = set(
     [
         "banners",
+        "banner-token",
         "chronicle-tasks",
         "edifices",
         "denizens",
@@ -115,6 +116,24 @@ def do_banners():
             "-o",
             "output/banners.pdf",
             *sorted(glob.glob("wip/banners-*.png")),
+        ],
+        check=True,
+    )
+
+
+def do_banner_token():
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "4.25inx1.5in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/banner-token.pdf",
+            "input/Banner token.jpg",
         ],
         check=True,
     )
