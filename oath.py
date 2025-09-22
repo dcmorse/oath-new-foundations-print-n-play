@@ -20,6 +20,7 @@ tasks = set(
         # "player-boards",
         "reference-cards",
         "relics",
+        "rise-of-the-first-chancellor",
         "sites",
         "visions",
     ]
@@ -317,6 +318,13 @@ def do_relics():
             "input/Relic The Grand Scepter.jpg",
         ],
         check=True,
+    )
+
+
+def do_rise_of_the_first_chancellor():
+    do_tarot_cards(
+        src_filenames=sorted(glob.glob("input/RotFC *.jpg")),
+        basename="rise-of-the-first-chancellor",
     )
 
 
