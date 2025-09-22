@@ -16,6 +16,8 @@ tasks = set(
         "foundation-board",
         "foundations",
         "legacies",
+        # "player-boards",
+        "relics",
     ]
 )
 
@@ -223,6 +225,48 @@ def do_legacies():
             "-o",
             "output/legacies.pdf",
             *sorted(glob.glob("wip/legacies-*.png")),
+        ],
+        check=True,
+    )
+
+
+def do_relics():
+    # 6731 x 3365 (plus other rows beneath)
+    retile(
+        (673, 673),
+        (10, 5),
+        sorted(glob.glob("input/Relics*.jpg")),
+        (3, 4),
+        "wip/relics-*.png",
+        # TODO: filter out removed cards
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "6.75inx9in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/relics.pdf",
+            *sorted(glob.glob("wip/relics-*.png")),
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "2.25inx2.25in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/relic-grand-scepter.pdf",
+            "input/Relic The Grand Scepter.jpg",
         ],
         check=True,
     )
