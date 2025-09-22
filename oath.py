@@ -13,13 +13,13 @@ tasks = set(
         "chronicle-tasks",
         "edifices",
         "denizens",
-        "visions",
         "foundation-board",
         "foundations",
         "legacies",
         # "player-boards",
         "relics",
         "sites",
+        "visions",
     ]
 )
 
@@ -58,10 +58,6 @@ def do_denizens():
         ],
         check=True,
     )
-
-
-def do_visions():
-    print("do_visions stubbed")
 
 
 def do_edifices():
@@ -308,6 +304,24 @@ def do_sites():
             "-o",
             "output/sites.pdf",
             *sorted(glob.glob("wip/sites-portrait*.png")),
+        ],
+        check=True,
+    )
+
+
+def do_visions():
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "7.25inx7in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/visions.pdf",
+            glob.glob("input/Vis*ons.jpg")[0],  # spelled 'Visons' at time of writing
         ],
         check=True,
     )
