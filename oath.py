@@ -15,6 +15,7 @@ tasks = set(
         "visions",
         "foundation-board",
         "foundations",
+        "legacies",
     ]
 )
 
@@ -195,6 +196,33 @@ def do_foundation_board():
             "-o",
             "output/foundation-board.pdf",
             "wip/foundation-board.png",
+        ],
+        check=True,
+    )
+
+
+def do_legacies():
+    # 3637 x 3956 mini-euro 44mm x 68mm (1.73in x 2.68in)
+    retile(
+        (518, 791),
+        (7, 5),
+        sorted(glob.glob("input/Legacies*.jpg")),
+        (4, 3),
+        "wip/legacies-*.png",
+        filter=image_middle_not_all_white,
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "174mmx204mm",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/legacies.pdf",
+            *sorted(glob.glob("wip/legacies-*.png")),
         ],
         check=True,
     )
