@@ -5,6 +5,7 @@ import glob
 import subprocess
 from denizens import is_denizen_to_print
 import re
+from typing import Iterable
 
 tasks = set(
     [
@@ -18,8 +19,17 @@ tasks = set(
         "legacies",
         # "player-boards",
         "relics",
+        "sites",
     ]
 )
+
+
+def landscape_to_portrait(src_filenames: Iterable[str]):
+    for landscape_file in src_filenames:
+        portrait_file = landscape_file.replace("-landscape", "-portrait")
+        subprocess.run(
+            ["convert", landscape_file, "-rotate", "90", portrait_file], check=True
+        )
 
 
 def do_denizens():
@@ -32,11 +42,7 @@ def do_denizens():
         "wip/denizens-landscape-*.png",
         filter=is_denizen_to_print,
     )
-    for landscape_file in glob.glob("wip/denizens-landscape*.png"):
-        portrait_file = landscape_file.replace("-landscape", "-portrait")
-        subprocess.run(
-            ["convert", landscape_file, "-rotate", "90", portrait_file], check=True
-        )
+    landscape_to_portrait(glob.glob("wip/denizens-landscape-*.png"))
     subprocess.run(
         [
             "img2pdf",
@@ -232,6 +238,7 @@ def do_legacies():
 
 def do_relics():
     # 6731 x 3365 (plus other rows beneath)
+    """including the grand scepter"""
     retile(
         (673, 673),
         (10, 5),
@@ -267,6 +274,40 @@ def do_relics():
             "-o",
             "output/relic-grand-scepter.pdf",
             "input/Relic The Grand Scepter.jpg",
+        ],
+        check=True,
+    )
+
+
+def do_sites():
+    # 1358 x 1051
+    # 6731 x 3365 (plus other rows beneath)
+    retile(
+        (1358, 1051),
+        (1, 1),
+        sorted(
+            [
+                s
+                for s in glob.glob("input/Site *.jpg")
+                if not re.search(r"site.*reference", s, re.IGNORECASE)
+            ]
+        ),
+        (2, 2),
+        "wip/sites-landscape-*.png",
+    )
+    landscape_to_portrait(glob.glob("wip/sites-landscape-*.png"))
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "7inx9in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/sites.pdf",
+            *sorted(glob.glob("wip/sites-portrait*.png")),
         ],
         check=True,
     )
