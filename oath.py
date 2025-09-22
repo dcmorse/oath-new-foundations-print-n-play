@@ -18,6 +18,7 @@ tasks = set(
         "foundations",
         "legacies",
         # "player-boards",
+        "reference-cards",
         "relics",
         "sites",
         "visions",
@@ -149,7 +150,7 @@ def do_tarot_cards(
     retile(
         (827, 1417),
         src_dims,
-        sorted(glob.glob("input/Chronicle Tasks*.jpg")),
+        src_filenames,
         (2, 2),
         wip_glob_name,
         filter=filter,
@@ -258,6 +259,21 @@ def do_legacies():
             *sorted(glob.glob("wip/legacies-*.png")),
         ],
         check=True,
+    )
+
+
+def do_reference_cards():
+    do_tarot_cards(
+        [
+            f"input/{fn}"
+            for fn in [
+                "Reference Actions.jpg",
+                "Reference Card Restrictions and Powers.jpg",
+                "Reference Misc Actions.jpg",
+                "Site 1 Reference.jpg",
+            ]
+        ],
+        "reference-cards",
     )
 
 
