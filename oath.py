@@ -1,6 +1,6 @@
 import argparse
-from typing import Set
-from retile import retile, image_middle_not_all_white
+from typing import Set, Tuple
+from retile import retile, image_middle_not_all_white, truly
 import glob
 import subprocess
 from denizens import is_denizen_to_print
@@ -139,20 +139,21 @@ def do_banner_token():
     )
 
 
-def do_chronicle_tasks():
-    ## input is 2480 x 2835
-    # Assuming output is Arcs Tarot size: 4.75 x 2.75 inches
-    subprocess.run("rm -f wip/chronicle-tasks-*.png", shell=True)
+def do_tarot_cards(
+    src_filenames: Iterable[str],
+    basename: str,
+    src_dims: Tuple[int, int] = (1, 1),
+    filter=truly,
+):
+    wip_glob_name = f"wip/{basename}-*.png"
     retile(
-        (826, 1417),
-        (3, 2),
+        (827, 1417),
+        src_dims,
         sorted(glob.glob("input/Chronicle Tasks*.jpg")),
         (2, 2),
-        "wip/chronicle-tasks-*.png",
-        filter=image_middle_not_all_white,
+        wip_glob_name,
+        filter=filter,
     )
-    if not glob.glob("wip/chronicle-tasks-*.png"):
-        raise RuntimeError("no chronicle tasks generated")
     subprocess.run(
         [
             "img2pdf",
@@ -163,10 +164,19 @@ def do_chronicle_tasks():
             "--fit",
             "shrink",
             "-o",
-            "output/chronicle-tasks.pdf",
-            *sorted(glob.glob("wip/chronicle-tasks-*.png")),
+            f"output/{basename}.pdf",
+            *sorted(glob.glob(wip_glob_name)),
         ],
         check=True,
+    )
+
+
+def do_chronicle_tasks():
+    do_tarot_cards(
+        src_filenames=sorted(glob.glob("input/Chronicle Tasks*.jpg")),
+        src_dims=(3, 2),
+        basename="chronicle-tasks",
+        filter=image_middle_not_all_white,
     )
 
 
