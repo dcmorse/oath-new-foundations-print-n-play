@@ -17,7 +17,7 @@ tasks = set(
         "foundation-board",
         "foundations",
         "legacies",
-        # "player-boards",
+        "player-boards",
         "reference-cards",
         "relics",
         "rise-of-the-first-chancellor",
@@ -71,11 +71,7 @@ def do_edifices():
         (4, 2),
         "wip/edifices-landscape-*.png",
     )
-    for landscape_file in glob.glob("wip/edifices-landscape*.png"):
-        portrait_file = landscape_file.replace("-landscape", "-portrait")
-        subprocess.run(
-            ["convert", landscape_file, "-rotate", "90", portrait_file], check=True
-        )
+    landscape_to_portrait(glob.glob("wip/edifices-landscape-*.png"))
     subprocess.run(
         [
             "img2pdf",
@@ -258,6 +254,34 @@ def do_legacies():
             "-o",
             "output/legacies.pdf",
             *sorted(glob.glob("wip/legacies-*.png")),
+        ],
+        check=True,
+    )
+
+
+def do_player_boards():
+    # 4701 x 4488
+    # A vision is about is 646 x 1029 at this scale and also 2.25" x 3.5"
+    retile(
+        (2350, 1122),
+        (2, 4),
+        sorted(glob.glob("input/Player Boards *.jpg")),
+        (1, 2),
+        "wip/player-boards-landscape-*.png",
+    )
+    landscape_to_portrait(glob.glob("wip/player-boards-landscape-*.png"))
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "7.63inx8.18in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/player-boards.pdf",
+            *sorted(glob.glob("wip/player-boards-portrait-*.png")),
         ],
         check=True,
     )
