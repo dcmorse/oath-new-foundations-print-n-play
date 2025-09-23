@@ -28,6 +28,7 @@ tasks = set(
 
 
 def landscape_to_portrait(src_filenames: Iterable[str]):
+    print("landscape_to_portrait")
     for landscape_file in src_filenames:
         portrait_file = landscape_file.replace("-landscape", "-portrait")
         subprocess.run(
@@ -434,6 +435,7 @@ def main():
     for task, enabled in args1.items():
         if enabled:
             snake_task = task.replace("-", "_")
+            print(snake_task)
             globals()[f"do_{snake_task}"]()
 
 
