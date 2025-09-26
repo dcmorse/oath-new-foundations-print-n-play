@@ -7,7 +7,7 @@ from denizens import is_denizen_to_print
 import re
 from typing import Iterable
 
-tasks = set(
+new_foundation_tasks = set(
     [
         "banners",
         "banner-token",
@@ -25,6 +25,12 @@ tasks = set(
         "visions",
     ]
 )
+
+clockwork_adversary_tasks: Set[str] = set(["clockwork1"])
+
+
+def do_clockwork1():
+    print("Clockwork1 not yet implemented")
 
 
 def landscape_to_portrait(src_filenames: Iterable[str]):
@@ -411,31 +417,48 @@ def main():
         description="convert oath assets into printable pdfs.",
         epilog="See the README.md for more info.",
     )
-    parser.add_argument("--all", action="store_true", help="Enable all tasks")
-    for task in tasks:
-        parser.add_argument(
-            f"--{task}", action="store_const", const=True, help=f"Enable {task} task"
-        )
-        parser.add_argument(
-            f"--no-{task}",
-            action="store_const",
-            const=False,
-            help=f"Disable {task} task",
-            dest=task,
-        )
-    args0 = parser.parse_args()
-    args1 = {
-        task: (
-            args0.all
-            if (task_value := getattr(args0, task.replace("-", "_"))) is None
-            else task_value
-        )
-        for task in tasks
-    }
+    parser.add_argument(
+        "--new-foundations",
+        action="store_true",
+        help="Enable all New Foundations tasks",
+    )
+    parser.add_argument(
+        "--clockwork-adversaries",
+        action="store_true",
+        help="Enable all Clockwork Adversaries tasks",
+    )
+    for game_tasks in [new_foundation_tasks, clockwork_adversary_tasks]:
+        for task in game_tasks:
+            parser.add_argument(
+                f"--{task}",
+                action="store_const",
+                const=True,
+                help=f"Enable {task} task",
+            )
+            parser.add_argument(
+                f"--no-{task}",
+                action="store_const",
+                const=False,
+                help=f"Disable {task} task",
+                dest=task,
+            )
+    args0 = vars(parser.parse_args())
+    args1 = {}
+    # default for the big game command line switches --new-foundations, --clockwork-adversaries
+    for tasks, game_on in [
+        (new_foundation_tasks, args0["new_foundations"]),
+        (clockwork_adversary_tasks, args0["clockwork_adversaries"]),
+    ]:
+        for task in tasks:
+            args1[task.replace("-", "_")] = bool(game_on)
+    # set fine-grained per-component switches
+    for task in new_foundation_tasks.union(clockwork_adversary_tasks):
+        if (b := args0.get(task.replace("-", "_"))) is not None:
+            args1[task.replace("-", "_")] = b
+    # run enabled tasks
     for task, enabled in args1.items():
         if enabled:
             snake_task = task.replace("-", "_")
-            print(snake_task)
             globals()[f"do_{snake_task}"]()
 
 
