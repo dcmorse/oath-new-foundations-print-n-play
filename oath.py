@@ -10,7 +10,6 @@ from typing import Iterable
 new_foundation_tasks = set(
     [
         "banners",
-        "banner-token",
         "chronicle-tasks",
         "edifices",
         "denizens",
@@ -97,15 +96,10 @@ def do_edifices():
 
 
 def do_banners():
-    bs = [
-        b
-        for b in glob.glob("input/Banner*.jpg")
-        if not re.search(r"banner.token", b, re.IGNORECASE)
-    ]
     retile(
         (1180, 1180),
         (1, 1),
-        sorted(bs),
+        sorted(glob.glob("input/Banner*.jpg")),
         (2, 2),
         "wip/banners-*.png",
     )
@@ -121,24 +115,6 @@ def do_banners():
             "-o",
             "output/banners.pdf",
             *sorted(glob.glob("wip/banners-*.png")),
-        ],
-        check=True,
-    )
-
-
-def do_banner_token():
-    subprocess.run(
-        [
-            "img2pdf",
-            "--pagesize",
-            "letter",
-            "--imgsize",
-            "4.25inx1.5in",
-            "--fit",
-            "shrink",
-            "-o",
-            "output/banner-token.pdf",
-            "input/Banner token.jpg",
         ],
         check=True,
     )
