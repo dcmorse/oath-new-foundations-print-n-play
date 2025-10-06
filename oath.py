@@ -6,6 +6,7 @@ import subprocess
 from denizens import is_denizen_to_print
 import re
 from typing import Iterable
+import filecmp
 
 new_foundation_tasks = set(
     [
@@ -335,6 +336,12 @@ def do_relics():
         ],
         check=True,
     )
+    if not filecmp.cmp(
+        "input/Relic The Grand Scepter 1.jpg",
+        "input/Relic The Grand Scepter 2.jpg",
+        shallow=False,
+    ):
+        raise ValueError("The Grand Scepter images differ; please check them.")
     subprocess.run(
         [
             "img2pdf",
@@ -346,7 +353,7 @@ def do_relics():
             "shrink",
             "-o",
             "output/relic-grand-scepter.pdf",
-            "input/Relic The Grand Scepter.jpg",
+            "input/Relic The Grand Scepter 1.jpg",
         ],
         check=True,
     )

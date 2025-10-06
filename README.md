@@ -23,6 +23,10 @@ And a lot of other jpegs besides that.
 Note that the easiest way to d/l them all is to `cd ..` and then right-click the folder in Google Drive. 
 Download the zip and then do a little splicing. 
 
+## Update: now building my own `input` subdir
+Well actually now I'm copying the images directly out of TTS in a format that's mostly the same as DomV's. 
+This script is in namer.py. You could theoretically do this too. 
+
 # Assumptions
 
 - You own base Oath, sleeved it, and own a working printer and a pair of scissors for cutting up cards. 
