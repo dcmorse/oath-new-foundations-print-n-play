@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+set -ex
+
+rm -rf input/ output/ wip/
+mkdir -p input/servant output/ wip/
+python namer.py 
+python oath.py --new-foundations
+zip -r output/input.zip input/
