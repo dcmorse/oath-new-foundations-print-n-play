@@ -20,7 +20,7 @@ def copy_src_to_dst():
         src_path = os.path.join(tts_src_dir, tts_name)
         dst_path = os.path.join(staging_dst_dir, human_name)
         if not os.path.exists(src_path):
-            print(f"missing {src_path}")
+            print(f"missing {dst_path} - {src_path}")
             continue
         if os.path.exists(dst_path):
             if filecmp.cmp(src_path, dst_path, shallow=False):
