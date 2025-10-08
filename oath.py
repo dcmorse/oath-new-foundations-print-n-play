@@ -1,12 +1,12 @@
+from typing import Iterable, Set, Tuple
 import argparse
-from typing import Set, Tuple
-from retile import retile, image_middle_not_all_white, truly
 import glob
 import subprocess
-from denizens import is_denizen_to_print
 import re
-from typing import Iterable
 import filecmp
+from denizens import is_denizen_to_print
+from retile import retile, image_middle_not_all_white, truly
+
 
 new_foundation_tasks = set(
     [

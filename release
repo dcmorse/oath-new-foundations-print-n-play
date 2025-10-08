@@ -1,8 +1,10 @@
 #!/usr/bin/bash
 set -ex
 
-rm -rf input/ output/ wip/
-mkdir -p input/servant output/ wip/
+rm -rf input/ output/ wip/ 
+mkdir -p input/servant output/ wip/ releases/
 python namer.py 
 python oath.py --new-foundations
-zip -r output/input.zip input/
+# zip -r output/input.zip input/
+rm -rf wip
+tar -zcf "releases/$(date -u +%Y-%m-%d-%H%M%S).tar.gz" output/ input/
