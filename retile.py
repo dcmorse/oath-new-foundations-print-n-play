@@ -1,4 +1,5 @@
 from ctypes import Array
+from itertools import count
 from typing import Generator, List, Tuple
 from PIL import Image
 from sys import argv
@@ -81,4 +82,30 @@ def retile(
             x = (i % n) * w
             y = (i // n) * h
             output_img.paste(subimg, (x, y))
+        output_img.save(dst_glob.replace("*", f"{dst_page_number:02d}"))
+
+
+def retile_2up(
+    subimg_size: Tuple[int, int],
+    src_dims: Tuple[int, int],
+    src_files: Tuple[Array[str], Array[str]],
+    dst_ncols: int,
+    dst_glob: str,
+):
+    w, h = subimg_size
+    for dst_page_number, subimg_pairs in enumerate(
+        batched(
+            zip(
+                load_subimages(subimg_size, src_dims, src_files[0], filter=truly),
+                load_subimages(subimg_size, src_dims, src_files[1], filter=truly),
+            ),
+            dst_ncols,
+        )
+    ):
+        print(f"writing {dst_page_number=}")
+        output_img = Image.new("RGB", (2 * w, dst_ncols * h), "white")
+        for i, [subimg_l, subimg_r] in enumerate(subimg_pairs):
+            y = i * h
+            output_img.paste(subimg_l, (0, y))
+            output_img.paste(subimg_r, (w, y))
         output_img.save(dst_glob.replace("*", f"{dst_page_number:02d}"))

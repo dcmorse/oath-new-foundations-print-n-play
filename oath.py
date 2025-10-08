@@ -5,7 +5,7 @@ import subprocess
 import re
 import filecmp
 from denizens import is_denizen_to_print
-from retile import retile, image_middle_not_all_white, truly
+from retile import retile, image_middle_not_all_white, retile_2up, truly
 
 
 new_foundation_tasks = set(
@@ -15,13 +15,12 @@ new_foundation_tasks = set(
         "chronicle-tasks",
         "edifices",
         "denizens",
-        "foundation-board",
-        "foundations",
         "legacies",
         "player-boards",
         "reference-cards",
         "relics",
         "rise-of-the-first-chancellor",
+        "setup-cards",
         "sites",
         "visions",
     ]
@@ -43,10 +42,13 @@ def landscape_to_portrait(src_filenames: Iterable[str]):
         )
 
 
+denizen_portrait_dims = (673, 1051)
+
+
 def do_denizens():
     # 6731 x 5256
     retile(
-        (673, 1051),
+        denizen_portrait_dims,
         (10, 5),
         sorted(glob.glob("input/Denizens*.jpg")),
         (4, 2),
@@ -73,7 +75,7 @@ def do_denizens():
 
 def do_edifices():
     retile(
-        (671, 1050),
+        (671, 1050),  # recall that denizen_portrait_dims = (673, 1051)
         (5, 1),
         sorted(glob.glob("input/Edifice*.jpg")),
         (4, 2),
@@ -145,15 +147,19 @@ def do_banners():
     )
 
 
+tarot_landscape_dims = (827, 1417)
+
+
 def do_tarot_cards(
     src_filenames: Iterable[str],
     basename: str,
     src_dims: Tuple[int, int] = (1, 1),
+    *,
     filter=truly,
 ):
     wip_glob_name = f"wip/{basename}-*.png"
     retile(
-        (827, 1417),
+        tarot_landscape_dims,
         src_dims,
         src_filenames,
         (2, 2),
@@ -186,14 +192,13 @@ def do_chronicle_tasks():
     )
 
 
-def do_foundations():
-    # 1181 x 780, 2in x 0.88in?
-    retile(
-        (590, 260),  # (1180/2, 780/3),
-        (2, 3),
-        sorted(glob.glob("input/Foundations *.jpg")),
-        (2, 10),
-        "wip/foundations-*.png",
+def do_setup_cards():
+    retile_2up(
+        (673, 1051),
+        (5, 3),
+        [["input/Setup Cards F.jpg"], ["input/Setup Cards B.jpg"]],
+        2,
+        "wip/setup-cards-*.png",
     )
     subprocess.run(
         [
@@ -201,40 +206,12 @@ def do_foundations():
             "--pagesize",
             "letter",
             "--imgsize",
-            "4inx9in",
+            "4.5inx7in",
             "--fit",
             "shrink",
             "-o",
-            "output/foundations.pdf",
-            *sorted(glob.glob("wip/foundations-*.png")),
-        ],
-        check=True,
-    )
-
-
-def do_foundation_board():
-    subprocess.run(
-        [
-            "convert",
-            "input/Foundation Board.jpg",
-            "-rotate",
-            "90",
-            "wip/foundation-board.png",
-        ],
-        check=True,
-    )
-    subprocess.run(
-        [
-            "img2pdf",
-            "--pagesize",
-            "letter",
-            "--imgsize",
-            "7inx10in",
-            "--fit",
-            "shrink",
-            "-o",
-            "output/foundation-board.pdf",
-            "wip/foundation-board.png",
+            f"output/setup-cards.pdf",
+            *sorted(glob.glob("wip/setup-cards-*.png")),
         ],
         check=True,
     )
