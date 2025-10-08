@@ -242,12 +242,13 @@ def do_foundation_board():
 
 
 def do_legacies():
+    # 6307 x 4039 6x6 (6x5 used)
     # 3637 x 3956 mini-euro 44mm x 68mm (1.73in x 2.68in)
     retile(
-        (518, 791),
-        (7, 5),
+        (1051, 673),
+        (6, 5),
         sorted(glob.glob("input/Legacies*.jpg")),
-        (4, 3),
+        (2, 4),
         "wip/legacies-*.png",
         filter=image_middle_not_all_white,
     )
