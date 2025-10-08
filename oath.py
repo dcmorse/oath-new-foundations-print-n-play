@@ -5,7 +5,7 @@ import subprocess
 import re
 import filecmp
 from denizens import is_denizen_to_print
-from retile import retile, image_middle_not_all_white, retile_2up, truly
+from retile import retile, image_middle_not_all_white, load_subimages, truly
 
 
 new_foundation_tasks = set(
@@ -49,11 +49,14 @@ def do_denizens():
     # 6731 x 5256
     retile(
         denizen_portrait_dims,
-        (10, 5),
-        sorted(glob.glob("input/Denizens*.jpg")),
+        load_subimages(
+            denizen_portrait_dims,
+            (10, 5),
+            sorted(glob.glob("input/Denizens*.jpg")),
+            filter=is_denizen_to_print,
+        ),
         (4, 2),
         "wip/denizens-landscape-*.png",
-        filter=is_denizen_to_print,
     )
     landscape_to_portrait(glob.glob("wip/denizens-landscape-*.png"))
     subprocess.run(
@@ -73,11 +76,15 @@ def do_denizens():
     )
 
 
+ediface_portrait_dims = (671, 1050)  # recall that denizen_portrait_dims = (673, 1051)
+
+
 def do_edifices():
     retile(
-        (671, 1050),  # recall that denizen_portrait_dims = (673, 1051)
-        (5, 1),
-        sorted(glob.glob("input/Edifice*.jpg")),
+        ediface_portrait_dims,
+        load_subimages(
+            ediface_portrait_dims, (5, 1), sorted(glob.glob("input/Edifice*.jpg"))
+        ),
         (4, 2),
         "wip/edifices-landscape-*.png",
     )
@@ -118,15 +125,19 @@ def do_banner_token():
 
 
 def do_banners():
-    bs = [
-        b
-        for b in glob.glob("input/Banner*.jpg")
-        if not re.search(r"banner.token", b, re.IGNORECASE)
-    ]
+    banner_dims = (1180, 1180)
+    bs = []
     retile(
-        (1180, 1180),
-        (1, 1),
-        sorted(bs),
+        banner_dims,
+        load_subimages(
+            banner_dims,
+            (1, 1),
+            (
+                b
+                for b in glob.glob("input/Banner*.jpg")
+                if not re.search(r"banner.token", b, re.IGNORECASE)
+            ),
+        ),
         (2, 2),
         "wip/banners-*.png",
     )
@@ -160,11 +171,9 @@ def do_tarot_cards(
     wip_glob_name = f"wip/{basename}-*.png"
     retile(
         tarot_landscape_dims,
-        src_dims,
-        src_filenames,
+        load_subimages(tarot_landscape_dims, src_dims, src_filenames, filter=filter),
         (2, 2),
         wip_glob_name,
-        filter=filter,
     )
     subprocess.run(
         [
@@ -192,26 +201,31 @@ def do_chronicle_tasks():
     )
 
 
+# TODO: 2up
 def do_setup_cards():
-    retile_2up(
-        (673, 1051),
-        (5, 3),
-        [["input/Setup Cards F.jpg"], ["input/Setup Cards B.jpg"]],
-        2,
-        "wip/setup-cards-*.png",
+    retile(
+        denizen_portrait_dims,
+        load_subimages(
+            denizen_portrait_dims,
+            (5, 3),
+            ["input/Setup Cards F.jpg", "input/Setup Cards B.jpg"],
+        ),
+        (4, 2),
+        "wip/setup-cards-landscape-*.png",
     )
+    landscape_to_portrait(glob.glob("wip/setup-cards-landscape-*.png"))
     subprocess.run(
         [
             "img2pdf",
             "--pagesize",
             "letter",
             "--imgsize",
-            "4.5inx7in",
+            "7inx9in",
             "--fit",
             "shrink",
             "-o",
-            f"output/setup-cards.pdf",
-            *sorted(glob.glob("wip/setup-cards-*.png")),
+            "output/setup-cards.pdf",
+            *sorted(glob.glob("wip/setup-cards-portrait*.png")),
         ],
         check=True,
     )
@@ -219,14 +233,18 @@ def do_setup_cards():
 
 def do_legacies():
     # 6307 x 4039 6x6 (6x5 used)
-    # 3637 x 3956 mini-euro 44mm x 68mm (1.73in x 2.68in)
+    m, n = denizen_portrait_dims
+    src_dims = (n, m)
     retile(
-        (1051, 673),
-        (6, 5),
-        sorted(glob.glob("input/Legacies*.jpg")),
+        src_dims,
+        load_subimages(
+            src_dims,
+            (6, 5),
+            sorted(glob.glob("input/Legacies*.jpg")),
+            filter=image_middle_not_all_white,
+        ),
         (2, 4),
         "wip/legacies-*.png",
-        filter=image_middle_not_all_white,
     )
     subprocess.run(
         [
@@ -248,10 +266,12 @@ def do_legacies():
 def do_player_boards():
     # 4701 x 4488
     # A vision is about is 646 x 1029 at this scale and also 2.25" x 3.5"
+    src_dims = (2350, 1122)
     retile(
-        (2350, 1122),
-        (2, 4),
-        sorted(glob.glob("input/Player Boards *.jpg")),
+        src_dims,
+        load_subimages(
+            src_dims, (2, 4), sorted(glob.glob("input/Player Boards *.jpg"))
+        ),
         (1, 2),
         "wip/player-boards-landscape-*.png",
     )
@@ -288,16 +308,17 @@ def do_reference_cards():
     )
 
 
+relic_dims = (673, 673)
+
+
 def do_relics():
     # 6731 x 3365 (plus other rows beneath)
     """including the grand scepter"""
     retile(
-        (673, 673),
-        (10, 5),
-        sorted(glob.glob("input/Relics*.jpg")),
+        relic_dims,
+        load_subimages(relic_dims, (10, 5), sorted(glob.glob("input/Relics*.jpg"))),
         (3, 4),
         "wip/relics-*.png",
-        # TODO: filter out removed cards
     )
     subprocess.run(
         [
@@ -347,15 +368,19 @@ def do_rise_of_the_first_chancellor():
 def do_sites():
     # 1358 x 1051
     # 6731 x 3365 (plus other rows beneath)
+    site_dims = (1358, 1051)
     retile(
-        (1358, 1051),
-        (1, 1),
-        sorted(
-            [
-                s
-                for s in glob.glob("input/Site *.jpg")
-                if not re.search(r"site.*reference", s, re.IGNORECASE)
-            ]
+        site_dims,
+        load_subimages(
+            site_dims,
+            (1, 1),
+            sorted(
+                (
+                    s
+                    for s in glob.glob("input/Site *.jpg")
+                    if not re.search(r"site.*reference", s, re.IGNORECASE)
+                )
+            ),
         ),
         (2, 2),
         "wip/sites-landscape-*.png",

@@ -23,22 +23,6 @@ def constant_function(x):
 truly = constant_function(True)
 
 
-def load_subimages(
-    subimg_size: Tuple[int, int],
-    src_grid_dims: Tuple[int, int],
-    src_files: Array[str],
-    *,
-    filter,
-) -> Generator[List[Image.Image], None, None]:
-    w, h = subimg_size
-    for filename in src_files:
-        src_page_img = Image.open(filename)
-        for flat_index in range(math.prod(src_grid_dims)):
-            j, i = divmod(flat_index, src_grid_dims[0])
-            if filter(src_page_img, subimg_size, (i, j)):
-                yield src_page_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
-
-
 def image_middle_not_all_white(
     src_page_img: Image.Image, subimg_size: Tuple[int, int], card_idxs: Tuple[int, int]
 ) -> bool:
@@ -57,24 +41,54 @@ def image_middle_not_all_white(
         return not (extrema[0] == extrema[1] == 255)
 
 
-def retile(
+def load_subimages(
     subimg_size: Tuple[int, int],
-    src_dims: Tuple[int, int],
+    src_grid_dims: Tuple[int, int],
     src_files: Array[str],
-    dst_dims: Tuple[int, int],
-    dst_glob: str,
     *,
     filter=truly,
+) -> Generator[List[Image.Image], None, None]:
+    w, h = subimg_size
+    for filename in src_files:
+        src_page_img = Image.open(filename)
+        for flat_index in range(math.prod(src_grid_dims)):
+            j, i = divmod(flat_index, src_grid_dims[0])
+            if filter(src_page_img, subimg_size, (i, j)):
+                yield src_page_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
+
+
+# def load_subimages_duplex(
+#     subimg_size: Tuple[int, int],
+#     src_grid_dims: Tuple[int, int],
+#     src_front_files: Array[str],
+#     src_back_files: Array[str],
+#     *,
+#     filter,
+# ) -> Generator[List[Image.Image], None, None]:
+#     w, h = subimg_size
+#     for src_filenames in zip(src_front_files, src_back_files):
+#         src_front_img, src_back_img = (Image.open(f) for f in src_filenames)
+#         for flat_index in range(math.prod(src_grid_dims)):
+#             j, i = divmod(flat_index, src_grid_dims[0])
+#             rectangle = (i * w, j * h, (i + 1) * w, (j + 1) * h)
+#             if filter(src_front_img, subimg_size, (i, j)):
+#                 yield src_front_img.crop(*rectangle)
+#             if filter(src_back_img, subimg_size, (i, j)):
+#                 yield src_back_img.crop(*rectangle)
+
+
+def retile(
+    subimg_size: Tuple[int, int],
+    subimg_gen: Generator[List[Image.Image], None, None],
+    # src_dims: Tuple[int, int],
+    # src_files: Array[str],
+    dst_dims: Tuple[int, int],
+    dst_glob: str,
 ):
     """Convert a bunch of grids of subimages into a different bunch of grids of subimages,
     with a different number of rows and columns from the source."""
     w, h = subimg_size
-    for dst_page_number, subimgs in enumerate(
-        batched(
-            load_subimages(subimg_size, src_dims, src_files, filter=filter),
-            math.prod(dst_dims),
-        )
-    ):
+    for dst_page_number, subimgs in enumerate(batched(subimg_gen, math.prod(dst_dims))):
         print(f"writing {dst_page_number=}")
         n, m = dst_dims
         output_img = Image.new("RGB", (n * w, m * h), "white")
@@ -82,30 +96,4 @@ def retile(
             x = (i % n) * w
             y = (i // n) * h
             output_img.paste(subimg, (x, y))
-        output_img.save(dst_glob.replace("*", f"{dst_page_number:02d}"))
-
-
-def retile_2up(
-    subimg_size: Tuple[int, int],
-    src_dims: Tuple[int, int],
-    src_files: Tuple[Array[str], Array[str]],
-    dst_ncols: int,
-    dst_glob: str,
-):
-    w, h = subimg_size
-    for dst_page_number, subimg_pairs in enumerate(
-        batched(
-            zip(
-                load_subimages(subimg_size, src_dims, src_files[0], filter=truly),
-                load_subimages(subimg_size, src_dims, src_files[1], filter=truly),
-            ),
-            dst_ncols,
-        )
-    ):
-        print(f"writing {dst_page_number=}")
-        output_img = Image.new("RGB", (2 * w, dst_ncols * h), "white")
-        for i, [subimg_l, subimg_r] in enumerate(subimg_pairs):
-            y = i * h
-            output_img.paste(subimg_l, (0, y))
-            output_img.paste(subimg_r, (w, y))
         output_img.save(dst_glob.replace("*", f"{dst_page_number:02d}"))
