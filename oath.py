@@ -88,8 +88,15 @@ ediface_portrait_dims = (671, 1050)  # recall that denizen_portrait_dims = (673,
 def do_edifices():
     retile(
         ediface_portrait_dims,
-        load_subimages(
-            ediface_portrait_dims, (5, 1), sorted(glob.glob("input/Edifice*.jpg"))
+        load_images_2up(
+            ediface_portrait_dims,
+            (5, 1),
+            (
+                e
+                for e in sorted(glob.glob("input/Edifice*.jpg"))
+                if not re.search(r"ruined", e, re.IGNORECASE)
+            ),
+            sorted(glob.glob("input/Edifice*Ruined.jpg")),
         ),
         (4, 2),
         "wip/edifices-landscape-*.png",
