@@ -57,24 +57,26 @@ def load_subimages(
                 yield src_page_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
 
 
-# def load_subimages_duplex(
-#     subimg_size: Tuple[int, int],
-#     src_grid_dims: Tuple[int, int],
-#     src_front_files: Array[str],
-#     src_back_files: Array[str],
-#     *,
-#     filter,
-# ) -> Generator[List[Image.Image], None, None]:
-#     w, h = subimg_size
-#     for src_filenames in zip(src_front_files, src_back_files):
-#         src_front_img, src_back_img = (Image.open(f) for f in src_filenames)
-#         for flat_index in range(math.prod(src_grid_dims)):
-#             j, i = divmod(flat_index, src_grid_dims[0])
-#             rectangle = (i * w, j * h, (i + 1) * w, (j + 1) * h)
-#             if filter(src_front_img, subimg_size, (i, j)):
-#                 yield src_front_img.crop(*rectangle)
-#             if filter(src_back_img, subimg_size, (i, j)):
-#                 yield src_back_img.crop(*rectangle)
+def load_images_2up(
+    subimg_size: Tuple[int, int],
+    src_grid_dims: Tuple[int, int],
+    src_front_files: Array[str],
+    src_back_files: Array[str],
+    *,
+    filter=truly,
+) -> Generator[List[Image.Image], None, None]:
+    w, h = subimg_size
+    for src_f_filename, src_b_filename in zip(src_front_files, src_back_files):
+        src_front_img = Image.open(src_f_filename)
+        src_back_img = Image.open(src_b_filename)
+        for flat_index in range(math.prod(src_grid_dims)):
+            j, i = divmod(flat_index, src_grid_dims[0])
+            front_filter = filter(src_front_img, subimg_size, (i, j))
+            back_filter = filter(src_back_img, subimg_size, (i, j))
+            print(f"{i=}, {j=}, {front_filter=}, {back_filter=}")
+            if front_filter or back_filter:
+                yield src_front_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
+                yield src_back_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
 
 
 def retile(

@@ -5,7 +5,13 @@ import subprocess
 import re
 import filecmp
 from denizens import is_denizen_to_print
-from retile import retile, image_middle_not_all_white, load_subimages, truly
+from retile import (
+    retile,
+    image_middle_not_all_white,
+    load_subimages,
+    load_images_2up,
+    truly,
+)
 
 
 new_foundation_tasks = set(
@@ -201,19 +207,22 @@ def do_chronicle_tasks():
     )
 
 
-# TODO: 2up
 def do_setup_cards():
     retile(
         denizen_portrait_dims,
-        load_subimages(
+        load_images_2up(
             denizen_portrait_dims,
             (5, 3),
-            ["input/Setup Cards F.jpg", "input/Setup Cards B.jpg"],
+            ["input/Setup Cards F.jpg"],
+            ["input/Setup Cards B.jpg"],
+            filter=image_middle_not_all_white,
         ),
         (4, 2),
-        "wip/setup-cards-landscape-*.png",
+        "wip/setup-cards-landscape-*.png",  # actually portrait right now
     )
-    landscape_to_portrait(glob.glob("wip/setup-cards-landscape-*.png"))
+    landscape_to_portrait(
+        glob.glob("wip/setup-cards-landscape-*.png")
+    )  # now landscape, sorry for this
     subprocess.run(
         [
             "img2pdf",
