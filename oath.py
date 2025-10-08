@@ -199,11 +199,32 @@ def do_tarot_cards(
 
 
 def do_chronicle_tasks():
-    do_tarot_cards(
-        src_filenames=sorted(glob.glob("input/Chronicle Tasks*.jpg")),
-        src_dims=(3, 2),
-        basename="chronicle-tasks",
-        filter=image_middle_not_all_white,
+    retile(
+        tarot_landscape_dims,
+        load_images_2up(
+            tarot_landscape_dims,
+            (3, 2),
+            ["input/Chronicle Tasks 1.jpg"],
+            ["input/Chronicle Tasks 2.jpg"],
+            filter=image_middle_not_all_white,
+        ),
+        (2, 2),
+        "wip/chronicle-tasks-*.png",
+    )
+    subprocess.run(  # shared DNA with do_tarot_cards...
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "5.5inx9.5in",
+            "--fit",
+            "shrink",
+            "-o",
+            f"output/chronicle-tasks.pdf",
+            *sorted(glob.glob("wip/chronicle-tasks-*.png")),
+        ],
+        check=True,
     )
 
 
@@ -278,8 +299,11 @@ def do_player_boards():
     src_dims = (2350, 1122)
     retile(
         src_dims,
-        load_subimages(
-            src_dims, (2, 4), sorted(glob.glob("input/Player Boards *.jpg"))
+        load_images_2up(
+            src_dims,
+            (2, 4),
+            ["input/Player Boards 1.jpg"],
+            ["input/Player Boards 2.jpg"],
         ),
         (1, 2),
         "wip/player-boards-landscape-*.png",
@@ -317,7 +341,7 @@ def do_reference_cards():
     )
 
 
-relic_dims = (673, 673)
+relic_dims = (673, 673)  # Grand Scepter has different dimensions
 
 
 def do_relics():
@@ -344,24 +368,26 @@ def do_relics():
         ],
         check=True,
     )
-    if not filecmp.cmp(
-        "input/Relic The Grand Scepter 1.jpg",
-        "input/Relic The Grand Scepter 2.jpg",
-        shallow=False,
-    ):
-        raise ValueError("The Grand Scepter images differ; please check them.")
+    retile(
+        (650, 650),
+        load_subimages(
+            relic_dims, (1, 1), glob.glob("input/Relic The Grand Scepter *.jpg")
+        ),
+        (2, 1),
+        "wip/relic-grand-scepter-*.png",
+    )
     subprocess.run(
         [
             "img2pdf",
             "--pagesize",
             "letter",
             "--imgsize",
-            "2.25inx2.25in",
+            "2.25inx4.5in",
             "--fit",
             "shrink",
             "-o",
             "output/relic-grand-scepter.pdf",
-            "input/Relic The Grand Scepter 1.jpg",
+            *glob.glob("wip/relic-grand-scepter-*.png"),
         ],
         check=True,
     )

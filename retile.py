@@ -73,7 +73,6 @@ def load_images_2up(
             j, i = divmod(flat_index, src_grid_dims[0])
             front_filter = filter(src_front_img, subimg_size, (i, j))
             back_filter = filter(src_back_img, subimg_size, (i, j))
-            print(f"{i=}, {j=}, {front_filter=}, {back_filter=}")
             if front_filter or back_filter:
                 yield src_front_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
                 yield src_back_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
