@@ -22,7 +22,6 @@ new_foundation_tasks = set(
         "reference-cards",
         "relics",
         "rise-of-the-first-chancellor",
-        "setup-aid",
         "sites",
         "visions",
     ]
@@ -397,25 +396,6 @@ def do_sites():
             "-o",
             "output/sites.pdf",
             *sorted(glob.glob("wip/sites-portrait*.png")),
-        ],
-        check=True,
-    )
-
-
-def do_setup_aid():
-    # 3071 x 2126
-    subprocess.run(
-        [
-            "img2pdf",
-            "--pagesize",
-            "letter",
-            "--imgsize",
-            "7inx5in",
-            "--fit",
-            "shrink",
-            "-o",
-            "output/setup-aid.pdf",
-            "input/Setup Aid.jpg",
         ],
         check=True,
     )
