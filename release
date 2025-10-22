@@ -2,7 +2,7 @@
 set -ex
 
 rm -rf input/ output/ wip/ 
-mkdir -p input/servant output/ wip/ releases/
+mkdir -p input/{servant,queen-of-shadows} output/ wip/ releases/
 python namer.py 
 python oath.py --new-foundations
 # zip -r output/input.zip input/
