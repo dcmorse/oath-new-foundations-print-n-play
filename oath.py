@@ -12,6 +12,13 @@ from retile import (
     load_images_2up,
     truly,
 )
+from typesetting_helpers import landscape_to_portrait, portrait_to_landscape
+from servant import (
+    do_servant_commands,
+    do_servant_display_board,
+    do_servant_moods,
+    do_servant_reference_cards,
+)
 
 
 new_foundation_tasks = set(
@@ -32,20 +39,16 @@ new_foundation_tasks = set(
     ]
 )
 
-clockwork_adversary_tasks: Set[str] = set(["clockwork1"])
+servant_tasks: Set[str] = set(
+    [
+        "servant-commands",
+        "servant-display-board",
+        "servant-moods",
+        "servant-reference-cards",
+    ]
+)
 
-
-def do_clockwork1():
-    print("Clockwork1 not yet implemented")
-
-
-def landscape_to_portrait(src_filenames: Iterable[str]):
-    print("landscape_to_portrait")
-    for landscape_file in src_filenames:
-        portrait_file = landscape_file.replace("-landscape", "-portrait")
-        subprocess.run(
-            ["convert", landscape_file, "-rotate", "90", portrait_file], check=True
-        )
+queen_of_shadows_tasks: Set[str] = set([])  # not yet implemented
 
 
 denizen_portrait_dims = (673, 1051)
@@ -62,9 +65,9 @@ def do_denizens():
             filter=is_denizen_to_print,
         ),
         (4, 2),
-        "wip/denizens-landscape-*.png",
+        "wip/denizens-portrait-*.png",
     )
-    landscape_to_portrait(glob.glob("wip/denizens-landscape-*.png"))
+    portrait_to_landscape(glob.glob("wip/denizens-portrait-*.png"))
     subprocess.run(
         [
             "img2pdf",
@@ -76,7 +79,7 @@ def do_denizens():
             "shrink",
             "-o",
             "output/denizens.pdf",
-            *sorted(glob.glob("wip/denizens-portrait*.png")),
+            *sorted(glob.glob("wip/denizens-landscape*.png")),
         ],
         check=True,
     )
@@ -99,9 +102,9 @@ def do_edifices():
             sorted(glob.glob("input/Edifice*Ruined.jpg")),
         ),
         (4, 2),
-        "wip/edifices-landscape-*.png",
+        "wip/edifices-portrait-*.png",
     )
-    landscape_to_portrait(glob.glob("wip/edifices-landscape-*.png"))
+    portrait_to_landscape(glob.glob("wip/edifices-portrait-*.png"))
     subprocess.run(
         [
             "img2pdf",
@@ -113,7 +116,7 @@ def do_edifices():
             "shrink",
             "-o",
             "output/edifices.pdf",
-            *sorted(glob.glob("wip/edifices-portrait*.png")),
+            *sorted(glob.glob("wip/edifices-landscape*.png")),
         ],
         check=True,
     )
@@ -246,11 +249,9 @@ def do_setup_cards():
             filter=image_middle_not_all_white,
         ),
         (4, 2),
-        "wip/setup-cards-landscape-*.png",  # actually portrait right now
+        "wip/setup-cards-portrait-*.png",
     )
-    landscape_to_portrait(
-        glob.glob("wip/setup-cards-landscape-*.png")
-    )  # now landscape, sorry for this
+    portrait_to_landscape(glob.glob("wip/setup-cards-portrait-*.png"))
     subprocess.run(
         [
             "img2pdf",
@@ -262,7 +263,7 @@ def do_setup_cards():
             "shrink",
             "-o",
             "output/setup-cards.pdf",
-            *sorted(glob.glob("wip/setup-cards-portrait*.png")),
+            *sorted(glob.glob("wip/setup-cards-landscape*.png")),
         ],
         check=True,
     )
@@ -475,11 +476,16 @@ def main():
         help="Enable all New Foundations tasks",
     )
     parser.add_argument(
-        "--clockwork-adversaries",
+        "--servant",
         action="store_true",
-        help="Enable all Clockwork Adversaries tasks",
+        help="Enable all Servant tasks",
     )
-    for game_tasks in [new_foundation_tasks, clockwork_adversary_tasks]:
+    parser.add_argument(
+        "--queen-of-shadows",
+        action="store_true",
+        help="Enable all Queen of Shadows tasks",
+    )
+    for game_tasks in [new_foundation_tasks, servant_tasks, queen_of_shadows_tasks]:
         for task in game_tasks:
             parser.add_argument(
                 f"--{task}",
@@ -499,12 +505,13 @@ def main():
     # default for the big game command line switches --new-foundations, --clockwork-adversaries
     for tasks, game_on in [
         (new_foundation_tasks, args0["new_foundations"]),
-        (clockwork_adversary_tasks, args0["clockwork_adversaries"]),
+        (servant_tasks, args0["servant"]),
+        (queen_of_shadows_tasks, args0["queen_of_shadows"]),
     ]:
         for task in tasks:
             args1[task.replace("-", "_")] = bool(game_on)
     # set fine-grained per-component switches
-    for task in new_foundation_tasks.union(clockwork_adversary_tasks):
+    for task in new_foundation_tasks.union(servant_tasks, queen_of_shadows_tasks):
         if (b := args0.get(task.replace("-", "_"))) is not None:
             args1[task.replace("-", "_")] = b
     # run enabled tasks
