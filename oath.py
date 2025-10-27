@@ -277,7 +277,7 @@ def do_legacies():
         src_dims,
         load_subimages(
             src_dims,
-            (6, 5),
+            (6, 6),
             sorted(glob.glob("input/Legacies*.jpg")),
             filter=image_middle_not_all_white,
         ),

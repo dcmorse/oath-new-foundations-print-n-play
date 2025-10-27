@@ -6,5 +6,5 @@ mkdir -p input/{servant,queen-of-shadows} output/{servant,queen-of-shadows} wip/
 python namer.py 
 python oath.py --new-foundations
 # zip -r output/input.zip input/
-rm -rf wip/*
+rm -rf wip/*.* wip/*/*.*
 tar -zcf "releases/$(date -u +%Y-%m-%d-%H%M%S).tar.gz" output/ input/

@@ -16,5 +16,5 @@ def portrait_to_landscape(src_filenames: Iterable[str]):
     for portrait_file in src_filenames:
         landscape_file = portrait_file.replace("-portrait", "-landscape")
         subprocess.run(
-            ["convert", portrait_file, "-rotate", "-90", landscape_file], check=True
+            ["convert", portrait_file, "-rotate", "90", landscape_file], check=True
         )
