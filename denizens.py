@@ -18,11 +18,8 @@ def is_new_foundations_denizen(card_idxs) -> bool:
 
 def is_card_with_red_triangle(src_img, subimage_size, card_idxs) -> bool:
     red = ImageColor.getrgb("#d22147")
-    nudge = 4
-    expect_red_pxs = [(638, 991), (628, 997), (646, 997), (638, 979)]
-    expect_not_red_pxs = [(624, 982), (652, 982), (638, 1006)]
-    expect_not_red_pxs = [(x, y + nudge) for (x, y) in expect_not_red_pxs]
-    expect_red_pxs = [(x, y + nudge) for (x, y) in expect_red_pxs]
+    expect_red_pxs = [(638, 995), (628, 1001), (646, 1001), (638, 983)]
+    expect_not_red_pxs = [(624, 986), (652, 986), (638, 1010)]
     w, h = subimage_size
     i, j = card_idxs
 
@@ -41,10 +38,9 @@ def is_card_with_red_triangle(src_img, subimage_size, card_idxs) -> bool:
     confidence = (
         count_red_pixels(expect_red_pxs) + 3 - count_red_pixels(expect_not_red_pxs)
     )
-    if confidence == 6 or confidence == 5:
-        print(f"unsure about {card_idxs=}")
+    if confidence not in {0, 3, 7}:
         print(
-            "confidence +{count_red_pixels(expect_red_pxs)}-{count_red_pixels(expect_not_red_pxs)} this card is red"
+            f"red triangle detector in unsure: confidence +{count_red_pixels(expect_red_pxs)}-{count_red_pixels(expect_not_red_pxs)} this card is red: {confidence} ~ {i}, {j}"
         )
         err_img = src_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
         for rx, ry in expect_red_pxs:
@@ -58,6 +54,28 @@ def is_card_with_red_triangle(src_img, subimage_size, card_idxs) -> bool:
         else:
             src_filename = "unknown"
         err_img.save(f"wip/den-err-{i}-{j}-{src_filename}.png")
+
+        # Attempt jitter to answer the question
+        for x_jitter in [-8, -6, -4, -2, 0, 2, 4, 6, 8]:
+            for y_jitter in [-8, -6, -4, -2, 0, 2, 4, 6, 8]:
+                if x_jitter == 0 and y_jitter == 0:
+                    continue
+                adjusted_expect_red_pxs = [
+                    (x + x_jitter, y + y_jitter) for (x, y) in expect_red_pxs
+                ]
+                adjusted_expect_not_red_pxs = [
+                    (x + x_jitter, y + y_jitter) for (x, y) in expect_not_red_pxs
+                ]
+                adjusted_confidence = (
+                    count_red_pixels(adjusted_expect_red_pxs)
+                    + 3
+                    - count_red_pixels(adjusted_expect_not_red_pxs)
+                )
+                if adjusted_confidence == 7:
+                    print(
+                        f"red triangle detector resolved with jitter {x_jitter}, {y_jitter}: {adjusted_confidence}"
+                    )
+                    return True
     # print(f"{card_idxs=} is red triangle? {confidence >= 5} ({confidence=})")
     return confidence >= 5
 
