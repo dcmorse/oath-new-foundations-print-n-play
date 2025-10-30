@@ -62,7 +62,7 @@ def do_denizens():
             denizen_portrait_dims,
             (10, 5),
             sorted(glob.glob("input/Denizens*.jpg")),
-            filter=is_denizen_to_print,
+            numpy_filter=is_denizen_to_print,
         ),
         (4, 2),
         "wip/denizens-portrait-*.png",
@@ -518,6 +518,7 @@ def main():
     for task, enabled in args1.items():
         if enabled:
             snake_task = task.replace("-", "_")
+            print(f"# {task}")
             globals()[f"do_{snake_task}"]()
 
 

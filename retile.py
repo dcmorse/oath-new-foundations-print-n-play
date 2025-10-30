@@ -7,6 +7,8 @@ from more_itertools import batched
 import math
 import glob
 
+import numpy as np
+
 
 # Load subimages, break them into batches, write them to pages
 # This file is currently used for sites and relics, but could probably be adapted
@@ -47,13 +49,21 @@ def load_subimages(
     src_files: Array[str],
     *,
     filter=truly,
+    # If numpy_filter is specified, ignore regular filter.
+    # numpy_filter requires allocating a big slow array, but makes red triangle detection faster
+    numpy_filter=None,
 ) -> Generator[List[Image.Image], None, None]:
     w, h = subimg_size
     for filename in src_files:
         src_page_img = Image.open(filename)
+        src_page_array = np.array(src_page_img) if numpy_filter else None
         for flat_index in range(math.prod(src_grid_dims)):
             j, i = divmod(flat_index, src_grid_dims[0])
-            if filter(src_page_img, subimg_size, (i, j)):
+            if (
+                numpy_filter(src_page_array, src_page_img, subimg_size, (i, j))
+                if numpy_filter
+                else filter(src_page_img, subimg_size, (i, j))
+            ):
                 yield src_page_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
 
 

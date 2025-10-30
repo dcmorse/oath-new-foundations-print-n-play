@@ -6,9 +6,9 @@ from PIL import ImageColor
 import numpy as np
 
 
-def is_denizen_to_print(src_img, subimage_size, card_idxs) -> bool:
+def is_denizen_to_print(src_array, src_img, subimage_size, card_idxs) -> bool:
     return is_new_foundations_denizen(card_idxs) or is_card_with_red_triangle(
-        src_img, subimage_size, card_idxs
+        src_array, src_img, subimage_size, card_idxs
     )
 
 
@@ -17,14 +17,12 @@ def is_new_foundations_denizen(card_idxs) -> bool:
     return (i >= 3 and j == 3) or (i < 3 and j == 4)
 
 
-def is_card_with_red_triangle(src_img, subimage_size, card_idxs) -> bool:
+def is_card_with_red_triangle(src_array, src_img, subimage_size, card_idxs) -> bool:
     red = ImageColor.getrgb("#d22147")
     expect_red_pxs = [(638, 995), (628, 1001), (646, 1001), (638, 983)]
     expect_not_red_pxs = [(624, 986), (652, 986), (638, 1010)]
     w, h = subimage_size
     i, j = card_idxs
-
-    src_array = np.array(src_img)  # very expensive!
 
     # only sample bottom right corner of the card
     scan_w, scan_h = 110, 130
