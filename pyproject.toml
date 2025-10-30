@@ -7,5 +7,6 @@ requires-python = ">=3.13"
 dependencies = [
     "img2pdf>=0.6.1",
     "more-itertools>=10.7.0",
+    "numpy>=2.3.4",
     "pillow>=11.2.1",
 ]
