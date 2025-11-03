@@ -28,6 +28,7 @@ new_foundation_tasks = set(
         "chronicle-tasks",
         "edifices",
         "denizens",
+        "imperial-reliquary",
         "legacies",
         "player-boards",
         "reference-cards",
@@ -35,6 +36,7 @@ new_foundation_tasks = set(
         "rise-of-the-first-chancellor",
         "setup-cards",
         "sites",
+        "usurper-limiter",
         "visions",
     ]
 )
@@ -233,6 +235,36 @@ def do_chronicle_tasks():
             "-o",
             f"output/chronicle-tasks.pdf",
             *sorted(glob.glob("wip/chronicle-tasks-*.png")),
+        ],
+        check=True,
+    )
+
+
+def do_imperial_reliquary():
+    imperial_reliquary_dims = (661, 661)
+    retile(
+        imperial_reliquary_dims,
+        load_images_2up(
+            imperial_reliquary_dims,
+            (1, 1),
+            ["input/imperial-reliquary-front.jpg"],
+            ["input/imperial-reliquary-back.jpg"],
+        ),
+        (2, 1),
+        "wip/imperial-reliquary-*.png",
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "5inx2.5in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/imperial-reliquary.pdf",
+            *sorted(glob.glob("wip/imperial-reliquary-*.png")),
         ],
         check=True,
     )
@@ -441,6 +473,26 @@ def do_sites():
             "-o",
             "output/sites.pdf",
             *sorted(glob.glob("wip/sites-portrait*.png")),
+        ],
+        check=True,
+    )
+
+
+def do_usurper_limiter():
+    # This log message is expected and I guess doing work for us:
+    # "Image contains an alpha channel. Computing a separate soft mask (/SMask) image to store transparency in PDF."
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "1inx1in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/usurper-limiter.pdf",
+            "input/usurper-limiter.png",
         ],
         check=True,
     )
