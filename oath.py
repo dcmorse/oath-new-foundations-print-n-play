@@ -53,6 +53,24 @@ servant_tasks: Set[str] = set(
 queen_of_shadows_tasks: Set[str] = set([])  # not yet implemented
 
 
+def typeset_landscape_bridge_cards(src_filenames: Iterable[str], dst_filename: str):
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "7inx9in",
+            "--fit",
+            "shrink",
+            "-o",
+            dst_filename,
+            *src_filenames,
+        ],
+        check=True,
+    )
+
+
 denizen_portrait_dims = (673, 1051)
 
 
@@ -70,20 +88,8 @@ def do_denizens():
         "wip/denizens-portrait-*.png",
     )
     portrait_to_landscape(glob.glob("wip/denizens-portrait-*.png"))
-    subprocess.run(
-        [
-            "img2pdf",
-            "--pagesize",
-            "letter",
-            "--imgsize",
-            "7inx9in",
-            "--fit",
-            "shrink",
-            "-o",
-            "output/denizens.pdf",
-            *sorted(glob.glob("wip/denizens-landscape*.png")),
-        ],
-        check=True,
+    typeset_landscape_bridge_cards(
+        sorted(glob.glob("wip/denizens-landscape*.png")), "output/denizens.pdf"
     )
 
 
@@ -107,20 +113,8 @@ def do_edifices():
         "wip/edifices-portrait-*.png",
     )
     portrait_to_landscape(glob.glob("wip/edifices-portrait-*.png"))
-    subprocess.run(
-        [
-            "img2pdf",
-            "--pagesize",
-            "letter",
-            "--imgsize",
-            "7inx9in",
-            "--fit",
-            "shrink",
-            "-o",
-            "output/edifices.pdf",
-            *sorted(glob.glob("wip/edifices-landscape*.png")),
-        ],
-        check=True,
+    typeset_landscape_bridge_cards(
+        sorted(glob.glob("wip/edifices-landscape*.png")), "output/edifices.pdf"
     )
 
 
@@ -302,7 +296,7 @@ def do_setup_cards():
 
 
 def do_legacies():
-    # 6307 x 4039 6x6 (6x5 used)
+    # 6307 x 4039 6x6
     m, n = denizen_portrait_dims
     src_dims = (n, m)
     retile(
@@ -314,22 +308,10 @@ def do_legacies():
             filter=image_middle_not_all_white,
         ),
         (2, 4),
-        "wip/legacies-*.png",
+        "wip/legacies-portrait-*.png",
     )
-    subprocess.run(
-        [
-            "img2pdf",
-            "--pagesize",
-            "letter",
-            "--imgsize",
-            "174mmx204mm",
-            "--fit",
-            "shrink",
-            "-o",
-            "output/legacies.pdf",
-            *sorted(glob.glob("wip/legacies-*.png")),
-        ],
-        check=True,
+    typeset_landscape_bridge_cards(
+        sorted(glob.glob("wip/legacies-portrait*.png")), "output/legacies.pdf"
     )
 
 
@@ -499,21 +481,7 @@ def do_usurper_limiter():
 
 
 def do_visions():
-    subprocess.run(
-        [
-            "img2pdf",
-            "--pagesize",
-            "letter",
-            "--imgsize",
-            "7.25inx7in",
-            "--fit",
-            "shrink",
-            "-o",
-            "output/visions.pdf",
-            glob.glob("input/Vis*ons.jpg")[0],  # spelled 'Visons' at time of writing
-        ],
-        check=True,
-    )
+    typeset_landscape_bridge_cards(["input/Visions.jpg"], "output/visions.pdf")
 
 
 def main():
