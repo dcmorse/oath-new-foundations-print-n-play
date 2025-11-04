@@ -32,9 +32,7 @@ def denizen_img_name(src_img, card_idxs) -> str | None:
 
 
 def is_royal_ambitions(src_img, card_idxs) -> bool:
-    return card_idxs == (8, 1) and "Denizens Discord" in getattr(
-        src_img, "filename", ""
-    )
+    return denizen_img_name(src_img, card_idxs) == "Royal Ambitions"
 
 
 def is_new_foundations_denizen(card_idxs) -> bool:
@@ -436,7 +434,7 @@ sloppy_card_titles = cards_by_suit = {
             "False Prophet",
             "Vow of Renewal",
             "Zealots",
-            "Dual Ambitions",
+            "Royal Ambitions",
             "Salt the Earth",
         ],
         [
