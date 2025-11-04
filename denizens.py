@@ -7,8 +7,16 @@ import numpy as np
 
 
 def is_denizen_to_print(src_array, src_img, subimage_size, card_idxs) -> bool:
-    return is_new_foundations_denizen(card_idxs) or is_card_with_red_triangle(
-        src_array, src_img, subimage_size, card_idxs
+    return (
+        is_new_foundations_denizen(card_idxs)
+        or is_card_with_red_triangle(src_array, src_img, subimage_size, card_idxs)
+        or is_royal_ambitions(src_img, card_idxs)
+    )
+
+
+def is_royal_ambitions(src_img, card_idxs) -> bool:
+    return card_idxs == (8, 1) and "Denizens Discord" in getattr(
+        src_img, "filename", ""
     )
 
 
@@ -41,13 +49,13 @@ def is_card_with_red_triangle(src_array, src_img, subimage_size, card_idxs) -> b
     distances_squared = np.sum((sub_array - target_color) ** 2, axis=2)
 
     # Count pixels within delta
-    count = np.sum(distances_squared <= delta**2)
-    if count < 10:
+    red_pixel_count = np.sum(distances_squared <= delta**2)
+    if red_pixel_count < 10:
         return False
-    elif 48 <= count <= 69:
+    elif 48 <= red_pixel_count <= 69:
         return True
     else:
-        log_red_triangle_uncertainty(i, j, w, h, src_img, count)
+        log_red_triangle_uncertainty(i, j, w, h, src_img, red_pixel_count)
         return False
 
 
