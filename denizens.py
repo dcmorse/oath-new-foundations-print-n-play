@@ -44,14 +44,7 @@ def is_card_with_red_triangle(src_array, src_img, subimage_size, card_idxs) -> b
     count = np.sum(distances_squared <= delta**2)
     if count < 10:
         return False
-    elif 550 <= count <= 650:
-        return True
-    elif (
-        150 <= count <= 158
-        and (i, j) == (1, 2)
-        and "Denizens Hearth" in getattr(src_img, "filename", "")
-    ):
-        # Relic Breaker's red triangle is strangely tiny
+    elif 48 <= count <= 69:
         return True
     else:
         log_red_triangle_uncertainty(i, j, w, h, src_img, count)
