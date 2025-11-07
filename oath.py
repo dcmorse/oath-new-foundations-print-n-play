@@ -390,10 +390,11 @@ def do_relics():
         ],
         check=True,
     )
+    grand_scepter_dims = (673, 898)
     retile(
-        (650, 650),
+        grand_scepter_dims,
         load_subimages(
-            relic_dims, (1, 1), glob.glob("input/Relic The Grand Scepter *.jpg")
+            grand_scepter_dims, (1, 1), glob.glob("input/Relic The Grand Scepter *.jpg")
         ),
         (2, 1),
         "wip/relic-grand-scepter-*.png",
@@ -404,7 +405,7 @@ def do_relics():
             "--pagesize",
             "letter",
             "--imgsize",
-            "2.25inx4.5in",
+            "4.5inx3.5in",
             "--fit",
             "shrink",
             "-o",
