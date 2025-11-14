@@ -12,13 +12,18 @@ from retile import (
     load_images_2up,
     truly,
 )
-from typesetting_helpers import landscape_to_portrait, portrait_to_landscape
+from typesetting_helpers import (
+    landscape_to_portrait,
+    portrait_to_landscape,
+    typeset_landscape_bridge_cards,
+)
 from servant import (
     do_servant_commands,
     do_servant_display_board,
     do_servant_moods,
     do_servant_reference_cards,
 )
+from queen_of_shadows import do_qos_shadow_cards, do_qos_title_cards
 
 
 new_foundation_tasks = set(
@@ -50,25 +55,7 @@ servant_tasks: Set[str] = set(
     ]
 )
 
-queen_of_shadows_tasks: Set[str] = set([])  # not yet implemented
-
-
-def typeset_landscape_bridge_cards(src_filenames: Iterable[str], dst_filename: str):
-    subprocess.run(
-        [
-            "img2pdf",
-            "--pagesize",
-            "letter",
-            "--imgsize",
-            "7inx9in",
-            "--fit",
-            "shrink",
-            "-o",
-            dst_filename,
-            *src_filenames,
-        ],
-        check=True,
-    )
+queen_of_shadows_tasks: Set[str] = set(["qos-shadow-cards", "qos-title-cards"])
 
 
 denizen_portrait_dims = (673, 1051)
