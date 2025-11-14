@@ -2,6 +2,8 @@ import glob
 import subprocess
 from retile import load_images_2up, load_subimages, retile, image_middle_not_all_white
 from typesetting_helpers import (
+    do_tarot_cards,
+    tarot_landscape_dims,
     portrait_to_landscape,
     typeset_landscape_bridge_cards,
 )
@@ -9,14 +11,50 @@ import shutil
 from PIL import Image, ImageOps
 
 
-def do_qos_prisoner_tiles():
+def do_qos_chronicle_tasks():
+    retile(
+        tarot_landscape_dims,
+        load_images_2up(
+            tarot_landscape_dims,
+            (5, 1),
+            ["input/queen-of-shadows/chronicle-tasks-front.png"],
+            ["input/queen-of-shadows/chronicle-tasks-back.png"],
+            filter=image_middle_not_all_white,
+        ),
+        (2, 2),
+        "wip/queen-of-shadows/chronicle-tasks-*.png",
+    )
+    subprocess.run(  # shared DNA with do_tarot_cards...
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "5.5inx9.5in",
+            "--fit",
+            "shrink",
+            "-o",
+            f"output/queen-of-shadows/chronicle-tasks.pdf",
+            *sorted(glob.glob("wip/queen-of-shadows/chronicle-tasks-*.png")),
+        ],
+        check=True,
+    )
+    # do_tarot_cards(
+    #     src_dims=(5, 1),
+    #     src_filenames=sorted(glob.glob("input/queen-of-shadows/chronicle-tasks-front.png")),
+    #     basename="queen-of-shadows/chronicle-tasks",
+    # )
+
+
+def do_qos_prisoner_tiles_helper(*, light_mode=False):
     """unlike most things in this kit, this is designed to be printed double-sided"""
     # 745x438
     prisoner_tile_dims = (745, 438)
+    mode = "light" if light_mode else "dark"
     for state in ["freed", "imprisoned"]:
         img = Image.open(f"input/queen-of-shadows/prisoner-{state}.png")
-        inverted = ImageOps.invert(img.convert("RGB"))
-        inverted.save(f"wip/queen-of-shadows/prisoner-{state}.png")
+        inverted = ImageOps.invert(img.convert("RGB")) if light_mode else img
+        inverted.save(f"wip/queen-of-shadows/prisoner-{state}-{mode}.png")
     retile(
         prisoner_tile_dims,
         load_subimages(
@@ -24,18 +62,21 @@ def do_qos_prisoner_tiles():
             (1, 1),
             # The following fancy ordering makes the edges between tiles legible
             [
-                "wip/queen-of-shadows/prisoner-imprisoned.png",
-                "wip/queen-of-shadows/prisoner-freed.png",
+                f"wip/queen-of-shadows/prisoner-imprisoned-{mode}.png",
+                f"wip/queen-of-shadows/prisoner-freed-{mode}.png",
             ]
             * 12
             + [
-                "wip/queen-of-shadows/prisoner-freed.png",
-                "wip/queen-of-shadows/prisoner-imprisoned.png",
+                f"wip/queen-of-shadows/prisoner-freed-{mode}.png",
+                f"wip/queen-of-shadows/prisoner-imprisoned-{mode}.png",
             ]
             * 12,
         ),
-        (3, 8),
-        "wip/queen-of-shadows/prisoner-tiles-*.png",
+        (4, 6),
+        f"wip/queen-of-shadows/prisoner-tiles-{mode}-portrait-*.png",
+    )
+    portrait_to_landscape(
+        glob.glob(f"wip/queen-of-shadows/prisoner-tiles-{mode}-portrait-*.png")
     )
     subprocess.run(
         [
@@ -47,8 +88,10 @@ def do_qos_prisoner_tiles():
             "--fit",
             "shrink",
             "-o",
-            "output/queen-of-shadows/prisoner-tiles.pdf",
-            *sorted(glob.glob("wip/queen-of-shadows/prisoner-tiles-*.png")),
+            f"output/queen-of-shadows/prisoner-tiles-{mode}.pdf",
+            *sorted(
+                glob.glob(f"wip/queen-of-shadows/prisoner-tiles-{mode}-landscape-*.png")
+            ),
         ],
         check=True,
     )

@@ -13,6 +13,8 @@ from retile import (
     truly,
 )
 from typesetting_helpers import (
+    do_tarot_cards,
+    tarot_landscape_dims,
     landscape_to_portrait,
     portrait_to_landscape,
     typeset_landscape_bridge_cards,
@@ -24,9 +26,10 @@ from servant import (
     do_servant_reference_cards,
 )
 from queen_of_shadows import (
+    do_qos_chronicle_tasks,
+    do_qos_prisoner_tiles_helper,
     do_qos_shadow_cards,
     do_qos_title_cards,
-    do_qos_prisoner_tiles,
 )
 
 
@@ -60,8 +63,22 @@ servant_tasks: Set[str] = set(
 )
 
 queen_of_shadows_tasks: Set[str] = set(
-    ["qos-shadow-cards", "qos-title-cards", "qos-prisoner-tiles"]
+    [
+        "qos-chronicle-tasks",
+        "qos-shadow-cards",
+        "qos-title-cards",
+        "qos-prisoner-tiles",
+        "qos-prisoner-tiles-light-mode",
+    ]
 )
+
+
+def do_qos_prisoner_tiles():
+    do_qos_prisoner_tiles_helper(light_mode=False)
+
+
+def do_qos_prisoner_tiles_light_mode():
+    do_qos_prisoner_tiles_helper(light_mode=True)
 
 
 denizen_portrait_dims = (673, 1051)
@@ -158,40 +175,6 @@ def do_banners():
             "-o",
             "output/banners.pdf",
             *sorted(glob.glob("wip/banners-*.png")),
-        ],
-        check=True,
-    )
-
-
-tarot_landscape_dims = (827, 1417)
-
-
-def do_tarot_cards(
-    src_filenames: Iterable[str],
-    basename: str,
-    src_dims: Tuple[int, int] = (1, 1),
-    *,
-    filter=truly,
-):
-    wip_glob_name = f"wip/{basename}-*.png"
-    retile(
-        tarot_landscape_dims,
-        load_subimages(tarot_landscape_dims, src_dims, src_filenames, filter=filter),
-        (2, 2),
-        wip_glob_name,
-    )
-    subprocess.run(
-        [
-            "img2pdf",
-            "--pagesize",
-            "letter",
-            "--imgsize",
-            "5.5inx9.5in",
-            "--fit",
-            "shrink",
-            "-o",
-            f"output/{basename}.pdf",
-            *sorted(glob.glob(wip_glob_name)),
         ],
         check=True,
     )
