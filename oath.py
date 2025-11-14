@@ -23,7 +23,11 @@ from servant import (
     do_servant_moods,
     do_servant_reference_cards,
 )
-from queen_of_shadows import do_qos_shadow_cards, do_qos_title_cards
+from queen_of_shadows import (
+    do_qos_shadow_cards,
+    do_qos_title_cards,
+    do_qos_prisoner_tiles,
+)
 
 
 new_foundation_tasks = set(
@@ -55,7 +59,9 @@ servant_tasks: Set[str] = set(
     ]
 )
 
-queen_of_shadows_tasks: Set[str] = set(["qos-shadow-cards", "qos-title-cards"])
+queen_of_shadows_tasks: Set[str] = set(
+    ["qos-shadow-cards", "qos-title-cards", "qos-prisoner-tiles"]
+)
 
 
 denizen_portrait_dims = (673, 1051)
