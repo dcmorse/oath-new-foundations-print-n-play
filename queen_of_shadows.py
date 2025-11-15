@@ -3,12 +3,52 @@ import subprocess
 from retile import load_images_2up, load_subimages, retile, image_middle_not_all_white
 from typesetting_helpers import (
     do_tarot_cards,
+    landscape_to_portrait,
     tarot_landscape_dims,
     portrait_to_landscape,
     typeset_landscape_bridge_cards,
 )
 import shutil
 from PIL import Image, ImageOps
+
+
+# Queen player board: 1 Tarot high by 4 tarot wide plus maybe 1/4" (in portrait),
+# 4.75" x 11.25"
+
+# Queen darkness track:
+# 4.75" x 11"
+
+
+def do_qos_darkness_track():
+    darkness_track_dims = (3142, 1264)
+    retile(
+        darkness_track_dims,
+        load_subimages(
+            darkness_track_dims,
+            (1, 1),
+            ["input/queen-of-shadows/darkness-track.png"],
+        ),
+        (1, 1),
+        "wip/queen-of-shadows/darkness-track-landscape-*.png",
+    )
+    landscape_to_portrait(
+        glob.glob("wip/queen-of-shadows/darkness-track-landscape-*.png")
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "4.42inx10.5in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/queen-of-shadows/darkness-track.pdf",
+            *sorted(glob.glob("wip/queen-of-shadows/darkness-track-portrait-*.png")),
+        ],
+        check=True,
+    )
 
 
 def do_qos_chronicle_tasks():
