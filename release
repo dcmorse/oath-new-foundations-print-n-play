@@ -4,7 +4,6 @@ set -ex
 rm -rf input/ output/ wip/ 
 mkdir -p input/{servant,queen-of-shadows} output/{servant,queen-of-shadows} wip/{servant,queen-of-shadows} releases/
 python namer.py 
-python oath.py --new-foundations --servant
-# zip -r output/input.zip input/
+python oath.py --new-foundations --servant --queen-of-shadows
 rm -rf wip/*.* wip/*/*.*
 tar -zcf "releases/$(date -u +%Y-%m-%d-%H%M%S).tar.gz" output/ input/
