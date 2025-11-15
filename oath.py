@@ -28,6 +28,7 @@ from servant import (
 from queen_of_shadows import (
     do_qos_chronicle_tasks,
     do_qos_darkness_track,
+    do_qos_player_board,
     do_qos_prisoner_tiles_helper,
     do_qos_shadow_cards,
     do_qos_title_cards,
@@ -69,6 +70,7 @@ queen_of_shadows_tasks: Set[str] = set(
         "qos-darkness-track",
         "qos-shadow-cards",
         "qos-title-cards",
+        "qos-player-board",
         "qos-prisoner-tiles",
         "qos-prisoner-tiles-light-mode",
     ]

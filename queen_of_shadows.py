@@ -8,18 +8,11 @@ from typesetting_helpers import (
     portrait_to_landscape,
     typeset_landscape_bridge_cards,
 )
-import shutil
 from PIL import Image, ImageOps
 
 
-# Queen player board: 1 Tarot high by 4 tarot wide plus maybe 1/4" (in portrait),
-# 4.75" x 11.25"
-
-# Queen darkness track:
-# 4.75" x 11"
-
-
 def do_qos_darkness_track():
+    # Ideally 4.75" x 11", but scaled it down to fit on letter paper with some margins
     darkness_track_dims = (3142, 1264)
     retile(
         darkness_track_dims,
@@ -79,11 +72,39 @@ def do_qos_chronicle_tasks():
         ],
         check=True,
     )
-    # do_tarot_cards(
-    #     src_dims=(5, 1),
-    #     src_filenames=sorted(glob.glob("input/queen-of-shadows/chronicle-tasks-front.png")),
-    #     basename="queen-of-shadows/chronicle-tasks",
-    # )
+
+
+def do_qos_player_board():
+    # Ideally 4.75" x 11", but scaled it down to fit on letter paper with some margins
+    player_board_dims = (3142, 1264)
+    retile(
+        player_board_dims,
+        load_subimages(
+            player_board_dims,
+            (1, 1),
+            sorted(glob.glob("input/queen-of-shadows/player-board-*.png")),
+        ),
+        (1, 1),
+        "wip/queen-of-shadows/player-board-landscape-*.png",
+    )
+    landscape_to_portrait(
+        glob.glob("wip/queen-of-shadows/player-board-landscape-*.png")
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "4.42inx10.5in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/queen-of-shadows/player-board.pdf",
+            *sorted(glob.glob("wip/queen-of-shadows/player-board-portrait-*.png")),
+        ],
+        check=True,
+    )
 
 
 def do_qos_prisoner_tiles_helper(*, light_mode=False):
