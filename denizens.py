@@ -35,11 +35,6 @@ class NFDenizen(Denizen):
         return True
 
 
-class RoyalAmbitions(Denizen):
-    def prints(self) -> bool:
-        return True
-
-
 class DudEdifice(Denizen):
     def prints(self) -> bool:
         return False
@@ -104,7 +99,7 @@ card_sheets = {
             BaseDenizen("Cracking Ground"),
             BaseDenizen("Scaling Wand"),
             BaseDenizen("Initiation Rite"),
-            BaseDenizen("Vow of Silence"),
+            RevisedDenizen("Vow of Silence"),
             RevisedDenizen("Forgotten Vault"),
         ],
         [
@@ -392,7 +387,7 @@ card_sheets = {
             BaseDenizen("False Prophet"),
             RevisedDenizen("Vow of Division"),
             BaseDenizen("Zealots"),
-            RoyalAmbitions("Royal Ambitions"),
+            RevisedDenizen("Royal Ambitions"),
             RevisedDenizen("Salt the Earth"),
         ],
         [
