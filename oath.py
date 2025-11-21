@@ -4,7 +4,7 @@ import glob
 import subprocess
 import re
 import filecmp
-from denizens import is_denizen_to_print
+from denizens import is_new_denizen
 from retile import (
     retile,
     image_middle_not_all_white,
@@ -96,7 +96,7 @@ def do_denizens():
             denizen_portrait_dims,
             (10, 5),
             sorted(glob.glob("input/Denizens*.jpg")),
-            numpy_filter=is_denizen_to_print,
+            filter=is_new_denizen,
         ),
         (4, 2),
         "wip/denizens-portrait-*.png",

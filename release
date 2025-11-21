@@ -1,7 +1,8 @@
 #!/usr/bin/bash
 set -ex
 
-rm -rf input/ output/ wip/ 
+rm -rf input/ 
+rm -rf output/ wip/ 
 mkdir -p input/{servant,queen-of-shadows} output/{servant,queen-of-shadows} wip/{servant,queen-of-shadows} releases/
 python namer.py 
 python oath.py --new-foundations --servant --queen-of-shadows

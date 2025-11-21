@@ -1,21 +1,58 @@
 import math
 import glob
 from typing import List, Tuple
+from abc import ABC, abstractmethod
 from PIL import Image
 from PIL import ImageColor
 import numpy as np
 
 
-def is_denizen_to_print(src_array, src_img, subimage_size, card_idxs) -> bool:
-    rv = (
-        is_new_foundations_denizen(card_idxs)
-        or is_card_with_red_triangle(src_array, src_img, subimage_size, card_idxs)
-        or is_royal_ambitions(src_img, card_idxs)
-    )
-    # print(
-    #     f"{denizen_img_name(src_img, card_idxs)} ({denizen_img_suit(src_img)}) {card_idxs} {rv=}"
-    # )
-    return rv
+class Denizen(ABC):
+    def __init__(self, name: str):
+        self._name = name
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @abstractmethod
+    def prints(self) -> bool:
+        pass
+
+
+class BaseDenizen(Denizen):
+    def prints(self) -> bool:
+        return False
+
+
+class RevisedDenizen(Denizen):
+    def prints(self) -> bool:
+        return True
+
+
+class NFDenizen(Denizen):
+    def prints(self) -> bool:
+        return True
+
+
+class RoyalAmbitions(Denizen):
+    def prints(self) -> bool:
+        return True
+
+
+class DudEdifice(Denizen):
+    def prints(self) -> bool:
+        return False
+
+
+class DeletedDenizen(Denizen):
+    def prints(self) -> bool:
+        return False
+
+
+def is_new_denizen(src_img, subimage_size, card_idxs) -> bool:
+    denizen = img_denizen(src_img, card_idxs)
+    return denizen and denizen.prints()
 
 
 def denizen_img_suit(src_img) -> str:
@@ -26,452 +63,371 @@ def denizen_img_suit(src_img) -> str:
     raise ValueError(f"Cannot determine suit from filename '{filename}'")
 
 
-def denizen_img_name(src_img, card_idxs) -> str | None:
+def img_denizen(src_img, card_idxs) -> Denizen | None:
     i, j = card_idxs
-    return sloppy_card_titles[denizen_img_suit(src_img)][j][i]
+    row = card_sheets[denizen_img_suit(src_img)][j]
+    return row[i] if i < len(row) else None
 
 
-def is_royal_ambitions(src_img, card_idxs) -> bool:
-    return denizen_img_name(src_img, card_idxs) == "Royal Ambitions"
-
-
-def is_new_foundations_denizen(card_idxs) -> bool:
-    i, j = card_idxs
-    return (i >= 3 and j == 3) or (i < 3 and j == 4)
-
-
-def is_card_with_red_triangle(src_array, src_img, subimage_size, card_idxs) -> bool:
-    red = ImageColor.getrgb("#d22147")
-    # Ancient Pact wants #d12145
-    # Round of Ale wants #d22147
-    # Relic Thief wants #d22147
-    # Bandit Chief wants #d22146
-    expect_red_pxs = [(638, 995), (628, 1001), (646, 1001), (638, 983)]
-    expect_not_red_pxs = [(624, 986), (652, 986), (638, 1010)]
-    w, h = subimage_size
-    i, j = card_idxs
-
-    # only sample bottom right corner of the card
-    scan_w, scan_h = 140, 130
-    x0, y0, x1, y1 = (
-        w * (i + 1) - scan_w,
-        h * (j + 1) - scan_h,
-        w * (i + 1),
-        h * (j + 1),
-    )
-    sub_array = src_array[y0:y1, x0:x1]
-
-    target_color = np.array(red)
-    delta = 30
-
-    # Calculate color distance for pixels in subregion only
-    distances_squared = np.sum((sub_array - target_color) ** 2, axis=2)
-
-    # Count pixels within delta
-    red_pixel_count = np.sum(distances_squared <= delta**2)
-
-    # log problematic red triangles by card name:
-    # denizen_name = denizen_img_name(src_img, card_idxs)
-    # if denizen_name in ["Bandit Chief", "A Round of Ale", "Ancient Pact"]:
-    #     print(f"{denizen_name} {red_pixel_count}")
-
-    if red_pixel_count < 10:
-        return False
-    elif 48 <= red_pixel_count <= 69:
-        return True
-    else:
-        log_red_triangle_uncertainty(i, j, w, h, src_img, red_pixel_count)
-        return False
-
-
-def log_red_triangle_uncertainty(i, j, w, h, src_img, count):
-    err_img = src_img.crop((i * w, j * h, (i + 1) * w, (j + 1) * h))
-    src_filename = getattr(src_img, "filename", "unknown")
-    if src_filename:
-        src_basename = src_filename.split("/")[-1].split(".")[0]
-    else:
-        src_basename = "unknown"
-    print(
-        f"WARNING: Uncertain red triangle detection {count} for card '{src_filename}' ({i}, {j}), logging image"
-    )
-    err_img.save(f"wip/den-err-{i}-{j}-{src_basename}.png")
-
-# Claude prompt:
-#   Here's a grid of photos of cards, 10 wide by 5 high. The title of each card is in a black-background banner near the top. Can you write me a 2D python list literal with the title of each card?
-# then
-#   Nice work! You nailed it!
-#   Now can you do it for the other suits: Arcane, Hearth, Beast, Nomad, and Order. Please put them in a map with their suit names as keys.
-sloppy_card_titles = cards_by_suit = {
+card_sheets = {
     "Arcane": [
         [
-            "Alchemist",
-            "Fire Talkers",
-            "Magician's Code",
-            "Spirit Snare",
-            "Wizard School",
-            "Oracle",
-            "Acting Troupe",
-            "Taming Charm",
-            "Inquisitor",
-            "Secret Signal",
+            RevisedDenizen("Alchemist"),
+            BaseDenizen("Fire Talkers"),
+            RevisedDenizen("Magician's Code"),
+            BaseDenizen("Spirit Snare"),
+            BaseDenizen("Wizard School"),
+            BaseDenizen("Oracle"),
+            BaseDenizen("Acting Troupe"),
+            BaseDenizen("Taming Charm"),
+            RevisedDenizen("Inquisitor"),
+            BaseDenizen("Secret Signal"),
         ],
         [
-            "Augury",
-            "Rusting Hay",
-            "Quick Visit",
-            "Billowing Fog",
-            "Kindred Warriors",
-            "Terror Spells",
-            "Blood Pact",
-            "Revelation",
-            "Observatory",
-            "Plague Engines",
+            BaseDenizen("Augury"),
+            BaseDenizen("Rusting Hay"),
+            RevisedDenizen("Quick Exit"),
+            BaseDenizen("Billowing Fog"),
+            BaseDenizen("Kindred Warriors"),
+            BaseDenizen("Terror Spells"),
+            BaseDenizen("Blood Pact"),
+            BaseDenizen("Revelation"),
+            BaseDenizen("Observatory"),
+            BaseDenizen("Plague Engines"),
         ],
         [
-            "Gleaming Armor",
-            "Bewitch",
-            "Jinx",
-            "Tutor",
-            "Dream Thief",
-            "Cracking Ground",
-            "Scaling Wand",
-            "Initiation Rite",
-            "Vow of Silence",
-            "Forgotten Vault",
+            BaseDenizen("Gleaming Armor"),
+            RevisedDenizen("Bewitch"),
+            BaseDenizen("Jinx"),
+            BaseDenizen("Tutor"),
+            BaseDenizen("Dream Thief"),
+            BaseDenizen("Cracking Ground"),
+            BaseDenizen("Scaling Wand"),
+            BaseDenizen("Initiation Rite"),
+            BaseDenizen("Vow of Silence"),
+            RevisedDenizen("Forgotten Vault"),
         ],
         [
-            "Map Library",
-            "Witch's Bargain",
-            "Master of Disguise",
-            "Golem Legions",
-            "Council Arbiter",
-            "Catacombs",
-            "Wand of Silence",
-            "Vow of Wisdom",
-            "Arcane Brokers",
-            "Disciples",
+            BaseDenizen("Map Library"),
+            BaseDenizen("Witch's Bargain"),
+            BaseDenizen("Master of Disguise"),
+            NFDenizen("Golem Legions"),
+            NFDenizen("Council Arbiter"),
+            NFDenizen("Catacombs"),
+            NFDenizen("Wand of Silence"),
+            NFDenizen("Vow of Wisdom"),
+            NFDenizen("Arcane Brokers"),
+            NFDenizen("Disciples"),
         ],
         [
-            "Arcane Armor",
-            "Glamor",
-            "Wizard's Conclave",
-            "Ghost Spire",
-            "Underground Library",
-            "Magic Portal",
-            "School of Wand",
-            "Lost Lore",
-            "",
-            "",
+            NFDenizen("Arcane Armor"),
+            NFDenizen("Glamor"),
+            NFDenizen("Wizard's Conclave"),
+            DudEdifice("Great Spire"),
+            DudEdifice("Underground Library"),
+            DudEdifice("Magic Portal"),
+            DudEdifice("School of Vines"),
+            DudEdifice("Lost Lore"),
         ],
     ],
     "Hearth": [
         [
-            "Tinker's Fair",
-            "Wayside Inn",
-            "Extra Provisions",
-            "Memory of Home",
-            "Welcoming Party",
-            "Traveling Doctor",
-            "Storyteller",
-            "Armed Mob",
-            "Tavern Songs",
-            "Homesteaders",
+            RevisedDenizen("Tinker's Fair"),
+            BaseDenizen("Wayside Inn"),
+            BaseDenizen("Extra Provisions"),
+            RevisedDenizen("Memory of Home"),
+            BaseDenizen("Welcoming Party"),
+            BaseDenizen("Traveling Doctor"),
+            BaseDenizen("Storyteller"),
+            BaseDenizen("Armed Mob"),
+            BaseDenizen("Tavern Songs"),
+            BaseDenizen("Homesteaders"),
         ],
         [
-            "Crop Rotation",
-            "A Round of Ale",
-            "Land Garden",
-            "Charming Friend",
-            "Village Constable",
-            "Family Heirloom",
-            "News from Afar",
-            "Revelers",
-            "Fabled Feast",
-            "The Great Levy",
+            BaseDenizen("Crop Rotation"),
+            RevisedDenizen("A Round of Ale"),
+            BaseDenizen("Land Garden"),
+            BaseDenizen("Charming Friend"),
+            BaseDenizen("Village Constable"),
+            BaseDenizen("Family Heirloom"),
+            BaseDenizen("News from Afar"),
+            BaseDenizen("Revelers"),
+            BaseDenizen("Fabled Feast"),
+            BaseDenizen("The Great Levy"),
         ],
         [
-            "Hearts and Minds",
-            "Relic Breaker",
-            "Book Binders",
-            "Ballot Box",
-            "Saddle Makers",
-            "Herald",
-            "Rowdy Pub",
-            "Vow of Peace",
-            "Deed Writer",
-            "Salad Days",
+            BaseDenizen("Hearts and Minds"),
+            RevisedDenizen("Relic Breaker"),
+            BaseDenizen("Book Binders"),
+            RevisedDenizen("Ballot Box"),
+            BaseDenizen("Saddle Makers"),
+            BaseDenizen("Herald"),
+            BaseDenizen("Rowdy Pub"),
+            BaseDenizen("Vow of Peace"),
+            RevisedDenizen("Deed Writer"),
+            BaseDenizen("Salad Days"),
         ],
         [
-            "Marriage",
-            "Hospital",
-            "Awaited Return",
-            "Old Songs",
-            "Diplomat",
-            "Village Idiot",
-            "Spinning Bee",
-            "Firebrand",
-            "Watchdog",
-            "Favored Son",
+            BaseDenizen("Marriage"),
+            BaseDenizen("Hospital"),
+            BaseDenizen("Awaited Return"),
+            NFDenizen("Old Songs"),
+            NFDenizen("Diplomat"),
+            NFDenizen("Village Idiot"),
+            NFDenizen("Spinning Bee"),
+            NFDenizen("Firebrand"),
+            NFDenizen("Watchdog"),
+            NFDenizen("Favored Son"),
         ],
         [
-            "Town Meeting",
-            "League Treaty",
-            "Skilled Merchants",
-            "Hall of Debate",
-            "Poisoned Mausoleum",
-            "Old Watchtower",
-            "Sacred Ground",
-            "The Giant Oak",
-            "",
-            "",
+            NFDenizen("Town Meeting"),
+            NFDenizen("League Treaty"),
+            NFDenizen("Skilled Merchants"),
+            DudEdifice("Hall of Debate"),
+            DudEdifice("Poisoned Mausoleum"),
+            DudEdifice("Old Watchtower"),
+            DudEdifice("Sacred Ground"),
+            DudEdifice("The Giant Oak"),
         ],
     ],
     "Beast": [
         [
-            "Errand Boy",
-            "Wolves",
-            "Animal Playmates",
-            "True Flames",
-            "The Old Oak",
-            "Forest Paths",
-            "Long-Lost Lair",
-            "Rangers",
-            "Roving Terror",
-            "Future Worship",
+            BaseDenizen("Errand Boy"),
+            BaseDenizen("Wolves"),
+            BaseDenizen("Animal Playmates"),
+            BaseDenizen("True Flames"),
+            BaseDenizen("The Old Oak"),
+            BaseDenizen("Forest Paths"),
+            RevisedDenizen("Long-Lost Heir"),
+            BaseDenizen("Rangers"),
+            BaseDenizen("Roving Terror"),
+            BaseDenizen("Future Worship"),
         ],
         [
-            "Birdsong",
-            "Small Friends",
-            "Grasping Vines",
-            "Threatening Roar",
-            "Fae Merchant",
-            "Second Chance",
-            "Pied Piper",
-            "Mushrooms",
-            "Insect Swarm",
-            "Vow of Union",
+            BaseDenizen("Birdsong"),
+            BaseDenizen("Small Friends"),
+            BaseDenizen("Grasping Vines"),
+            BaseDenizen("Threatening Roar"),
+            BaseDenizen("Fae Merchant"),
+            BaseDenizen("Second Chance"),
+            BaseDenizen("Pied Piper"),
+            BaseDenizen("Mushrooms"),
+            BaseDenizen("Insect Swarm"),
+            RevisedDenizen("Vow of Union"),
         ],
         [
-            "Giant Python",
-            "War Tortoise",
-            "Dew Growth",
-            "Wild Cry",
-            "Animal Feast",
-            "Memory of Nature",
-            "Marsh Spirit",
-            "Vow of Poverty",
-            "Forest Council",
-            "Walled Garden",
+            RevisedDenizen("Giant Python"),
+            BaseDenizen("War Tortoise"),
+            BaseDenizen("Dew Growth"),
+            BaseDenizen("Wild Cry"),
+            BaseDenizen("Animal Feast"),
+            BaseDenizen("Memory of Nature"),
+            BaseDenizen("Marsh Spirit"),
+            BaseDenizen("Vow of Poverty"),
+            RevisedDenizen("Forest Council"),
+            BaseDenizen("Walled Garden"),
         ],
         [
-            "Vow of Beastskin",
-            "Kracken",
-            "Wild Lillies",
-            "True Oath",
-            "Dog",
-            "Whispering Leaves",
-            "Best of Hoots",
-            "Autumn Wind",
-            "Shifting Fog",
-            "Fae Battalion",
+            BaseDenizen("Vow of Beastskin"),
+            RevisedDenizen("Bracken"),
+            BaseDenizen("Wild Allies"),
+            NFDenizen("True Oath"),
+            NFDenizen("Bog"),
+            NFDenizen("Whispering Leaves"),
+            NFDenizen("Best of Hoots"),
+            NFDenizen("Autumn Wind"),
+            NFDenizen("Shifting Fog"),
+            NFDenizen("Fae Battalion"),
         ],
         [
-            "Hunger",
-            "Signal Trees",
-            "Forest Garden",
-            "Power Temple",
-            "Lost Hermitage",
-            "Hollowed Spring",
-            "Great Mall",
-            "Great Aqueduct",
-            "",
-            "",
+            NFDenizen("Hunger"),
+            NFDenizen("Signal Trees"),
+            NFDenizen("Forest Garden"),
+            DudEdifice("Power Temple"),
+            DudEdifice("Lost Hermitage"),
+            DudEdifice("Hollowed Spring"),
+            DudEdifice("Great Mall"),
+            DudEdifice("Great Aqueduct"),
         ],
     ],
     "Nomad": [
         [
-            "Rain Boots",
-            "Ancient Binding",
-            "Horse Archers",
-            "Learning Signals",
-            "Elders",
-            "The Gathering",
-            "Faithful Friend",
-            "Tents",
-            "Great Herd",
-            "Convoys",
+            BaseDenizen("Rain Boots"),
+            BaseDenizen("Ancient Binding"),
+            BaseDenizen("Horse Archers"),
+            BaseDenizen("Learning Signals"),
+            BaseDenizen("Elders"),
+            BaseDenizen("The Gathering"),
+            BaseDenizen("Faithful Friend"),
+            BaseDenizen("Tents"),
+            BaseDenizen("Great Herd"),
+            BaseDenizen("Convoys"),
         ],
         [
-            "Vow of Kinship",
-            "Wild Mounts",
-            "Lancers",
-            "Mountain Giant",
-            "Rival Khan",
-            "Lost Tongue",
-            "Special Envoy",
-            "Berserk",
-            "Oracle",
-            "Pilgrimage",
+            BaseDenizen("Vow of Kinship"),
+            BaseDenizen("Wild Mounts"),
+            BaseDenizen("Lancers"),
+            BaseDenizen("Mountain Giant"),
+            BaseDenizen("Rival Khan"),
+            BaseDenizen("Lost Tongue"),
+            BaseDenizen("Special Envoy"),
+            BaseDenizen("Berserk"),
+            BaseDenizen("Oracle"),
+            BaseDenizen("Pilgrimage"),
         ],
         [
-            "Spell Breaker",
-            "Mounted Patrol",
-            "Great Crusade",
-            "Ancient Bloodline",
-            "Ancient Pact",
-            "Storm Caller",
-            "Family Wagon",
-            "War Station",
-            "Twin Heather",
-            "Hospitality",
+            BaseDenizen("Spell Breaker"),
+            BaseDenizen("Mounted Patrol"),
+            BaseDenizen("Great Crusade"),
+            BaseDenizen("Ancient Bloodline"),
+            RevisedDenizen("Ancient Pact"),
+            BaseDenizen("Storm Caller"),
+            RevisedDenizen("Family Wagon"),
+            BaseDenizen("War Station"),
+            BaseDenizen("Twin Heather"),
+            BaseDenizen("Hospitality"),
         ],
         [
-            "A Fast Steed",
-            "Relic Worship",
-            "Sacred Ground",
-            "Tribute Spoke",
-            "Search Party",
-            "Moving Market",
-            "Traveling Negotiator",
-            "Pledge of Defense",
-            "The Red Seer",
-            "Royal Stables",
+            BaseDenizen("A Fast Steed"),
+            RevisedDenizen("Relic Worship"),
+            DeletedDenizen("Sacred Ground"),
+            NFDenizen("Tribute Spoke"),
+            NFDenizen("Search Party"),
+            NFDenizen("Moving Market"),
+            NFDenizen("Traveling Negotiator"),
+            NFDenizen("Pledge of Defense"),
+            NFDenizen("The Red Seer"),
+            NFDenizen("Royal Stables"),
         ],
         [
-            "Call for Help",
-            "Vow of Wandering",
-            "Mounted Library",
-            "Great Forge",
-            "War Dances",
-            "Monument Trail",
-            "Long Patrol",
-            "Tomb Guardians",
-            "",
-            "",
+            NFDenizen("Call for Help"),
+            NFDenizen("Vow of Wandering"),
+            NFDenizen("Mounted Library"),
+            DudEdifice("Great Forge"),
+            DudEdifice("War Dances"),
+            DudEdifice("Monument Trail"),
+            DudEdifice("Long Patrol"),
+            DudEdifice("Tomb Guardians"),
         ],
     ],
     "Order": [
         [
-            "Wrestlers",
-            "Battle Donors",
-            "Bear Traps",
-            "Longbows",
-            "Keep",
-            "Pressgang",
-            "Garrison",
-            "Scouts",
-            "Martial Culture",
-            "Code of Honor",
+            BaseDenizen("Wrestlers"),
+            BaseDenizen("Battle Donors"),
+            BaseDenizen("Bear Traps"),
+            BaseDenizen("Longbows"),
+            RevisedDenizen("Keep"),
+            BaseDenizen("Pressgang"),
+            BaseDenizen("Garrison"),
+            BaseDenizen("Scouts"),
+            RevisedDenizen("Martial Culture"),
+            BaseDenizen("Code of Honor"),
         ],
         [
-            "Outriders",
-            "Messenger",
-            "Field Promotion",
-            "Palanquin",
-            "Shield Wall",
-            "Military Parade",
-            "Tomb Guardians",
-            "Tyrant",
-            "Forced Labor",
-            "Secret Police",
+            BaseDenizen("Outriders"),
+            BaseDenizen("Messenger"),
+            BaseDenizen("Field Promotion"),
+            BaseDenizen("Palanquin"),
+            BaseDenizen("Shield Wall"),
+            BaseDenizen("Military Parade"),
+            DeletedDenizen("Tome Guardians"),
+            BaseDenizen("Tyrant"),
+            BaseDenizen("Forced Labor"),
+            BaseDenizen("Secret Police"),
         ],
         [
-            "Specialist",
-            "Captains",
-            "Siege Engines",
-            "Royal Tax",
-            "Toll Roads",
-            "Curfew",
-            "Knights Errant",
-            "Vow of Obedience",
-            "Hunting Party",
-            "Council Seat",
+            BaseDenizen("Specialist"),
+            BaseDenizen("Captains"),
+            BaseDenizen("Siege Engines"),
+            BaseDenizen("Royal Tax"),
+            BaseDenizen("Toll Roads"),
+            BaseDenizen("Curfew"),
+            BaseDenizen("Knights Errant"),
+            BaseDenizen("Vow of Obedience"),
+            BaseDenizen("Hunting Party"),
+            BaseDenizen("Council Seat"),
         ],
         [
-            "Encirclement",
-            "Peace Envoy",
-            "Relic Hunter",
-            "Master at Arms",
-            "Baron",
-            "Honor Guard",
-            "City Wall",
-            "Fearsome General",
-            "Careful Plans",
-            "Garrison Armory",
+            BaseDenizen("Encirclement"),
+            BaseDenizen("Peace Envoy"),
+            BaseDenizen("Relic Hunter"),
+            NFDenizen("Master at Arms"),
+            NFDenizen("Baron"),
+            NFDenizen("Honor Guard"),
+            NFDenizen("City Wall"),
+            NFDenizen("Fearsome General"),
+            NFDenizen("Careful Plans"),
+            NFDenizen("Garrison Armory"),
         ],
         [
-            "Battle Axes",
-            "Great Feast",
-            "Quartermaster",
-            "Sprawling Ramparts",
-            "Grand Canal",
-            "The Tribunal",
-            "Harbor Doors",
-            "Proving Grounds",
-            "",
-            "",
+            NFDenizen("Battle Axes"),
+            NFDenizen("Great Feast"),
+            NFDenizen("Quartermaster"),
+            DudEdifice("Sprawling Ramparts"),
+            DudEdifice("Grand Canal"),
+            DudEdifice("The Tribunal"),
+            DudEdifice("Harbor Doors"),
+            DudEdifice("Proving Grounds"),
         ],
     ],
     "Discord": [
         [
-            "Mercenaries",
-            "A Small Favor",
-            "Second Wind",
-            "Sleight of Hand",
-            "Key to the City",
-            "Sewer",
-            "Obsessed Captain",
-            "Daysavers",
-            "Book Burning",
-            "Charlatan",
+            BaseDenizen("Mercenaries"),
+            BaseDenizen("A Small Favor"),
+            BaseDenizen("Second Wind"),
+            BaseDenizen("Sleight of Hand"),
+            BaseDenizen("Key to the City"),
+            BaseDenizen("Sewer"),
+            RevisedDenizen("Disgraced Captain"),
+            BaseDenizen("Naysayers"),
+            RevisedDenizen("Book Burning"),
+            BaseDenizen("Charlatan"),
         ],
         [
-            "Assassin",
-            "Downtrodden",
-            "Blackmail",
-            "Cracked Sage",
-            "Dissent",
-            "False Prophet",
-            "Vow of Renewal",
-            "Zealots",
-            "Royal Ambitions",
-            "Salt the Earth",
+            BaseDenizen("Assassin"),
+            BaseDenizen("Downtrodden"),
+            BaseDenizen("Blackmail"),
+            BaseDenizen("Cracked Sage"),
+            BaseDenizen("Dissent"),
+            BaseDenizen("False Prophet"),
+            RevisedDenizen("Vow of Division"),
+            BaseDenizen("Zealots"),
+            RoyalAmbitions("Royal Ambitions"),
+            RevisedDenizen("Salt the Earth"),
         ],
         [
-            "Beast Tamer",
-            "Riots",
-            "Silver Tongue",
-            "Gambling Hall",
-            "Boiling Lake",
-            "Relic Thief",
-            "Enchantress",
-            "Insomnia",
-            "Sneak Attack",
-            "Gossip",
+            BaseDenizen("Beast Tamer"),
+            RevisedDenizen("Riots"),
+            BaseDenizen("Silver Tongue"),
+            BaseDenizen("Gambling Hall"),
+            DeletedDenizen("Boiling Lake"),
+            RevisedDenizen("Relic Thief"),
+            BaseDenizen("Enchantress"),
+            BaseDenizen("Insomnia"),
+            BaseDenizen("Sneak Attack"),
+            RevisedDenizen("Gossip"),
         ],
         [
-            "Bandit Chief",
-            "Chaos Cult",
-            "Slander",
-            "Bandit Paymaster",
-            "Reliquary Maid",
-            "Tracker",
-            "Banner Breakers",
-            "Pledge to Discard",
-            "Familiar Friar",
-            "Unstable Summons",
+            RevisedDenizen("Bandit Chief"),
+            BaseDenizen("Chaos Cult"),
+            RevisedDenizen("Slander"),
+            NFDenizen("Bandit Paymaster"),
+            NFDenizen("Reliquary Maid"),
+            NFDenizen("Tracker"),
+            NFDenizen("Banner Breakers"),
+            NFDenizen("Pledge to Discard"),
+            NFDenizen("Familiar Friar"),
+            NFDenizen("Unstable Summons"),
         ],
         [
-            "Bandit Prince",
-            "Dark Enforcer",
-            "Spoiled Supplies",
-            "Festival District",
-            "Spied Cards",
-            "Coliseum",
-            "Drowning Spell",
-            "Loosening Tower",
-            "",
-            "",
+            NFDenizen("Bandit Prince"),
+            NFDenizen("Dark Enforcer"),
+            NFDenizen("Spoiled Supplies"),
+            DudEdifice("Festival District"),
+            DudEdifice("Spied Cards"),
+            DudEdifice("Coliseum"),
+            DudEdifice("Drowning Spell"),
+            DudEdifice("Loosening Tower"),
         ],
     ],
 }
