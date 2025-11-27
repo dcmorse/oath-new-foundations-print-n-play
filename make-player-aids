@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -euox pipefail
+
+cp player-aid-input/Oath\ NF\ Aid\ Booklet\ \(Tarot\ Sized\).pdf output/player-aid-1up.pdf
+pdfjam --no-tidy --nup 2x2 --scale 0.95  --outfile output/player-aid-4up-full-page.pdf player-aid-input/Oath\ NF\ Aid\ Booklet\ \(Tarot\ Sized\).pdf 
+pdfjam --no-tidy --nup 2x2 --scale 0.86 --outfile output/player-aid-4up-tarot.pdf player-aid-input/Oath\ NF\ Aid\ Booklet\ \(Tarot\ Sized\).pdf 
+echo all ok
+exit 0

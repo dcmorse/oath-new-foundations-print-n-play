@@ -45,7 +45,7 @@ new_foundation_tasks = set(
         "imperial-reliquary",
         "legacies",
         "player-boards",
-        "reference-cards",
+        # "reference-cards", - obsolete - now supplied on the side by Cole
         "relics",
         "rise-of-the-first-chancellor",
         "setup-cards",
@@ -328,6 +328,7 @@ def do_player_boards():
     )
 
 
+# obsolete - now supplied on the side by Cole
 def do_reference_cards():
     do_tarot_cards(
         [
