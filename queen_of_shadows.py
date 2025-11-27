@@ -79,6 +79,28 @@ def do_qos_priority_tokens():
     )
 
 
+def do_qos_darkness_cards():
+    card_dims = (673, 1051)
+    retile(
+        card_dims,
+        load_subimages(
+            card_dims,
+            (6, 5),
+            ["input/queen-of-shadows/darkness-cards.png"],
+            filter=image_middle_not_all_white,
+        ),
+        (4, 2),
+        "wip/queen-of-shadows/darkness-cards-portrait-*.png",
+    )
+    portrait_to_landscape(
+        glob.glob("wip/queen-of-shadows/darkness-cards-portrait-*.png")
+    )
+    typeset_landscape_bridge_cards(
+        sorted(glob.glob("wip/queen-of-shadows/darkness-cards-landscape-*.png")),
+        "output/queen-of-shadows/darkness-cards.pdf",
+    )
+
+
 def do_qos_darkness_track():
     # Ideally 4.75" x 11", but scaled it down to fit on letter paper with some margins
     darkness_track_dims = (3142, 1264)
