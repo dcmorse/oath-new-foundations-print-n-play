@@ -294,3 +294,32 @@ def do_qos_title_cards():
         sorted(glob.glob("wip/queen-of-shadows/title-cards-landscape-*.png")),
         "output/queen-of-shadows/title-cards.pdf",
     )
+
+
+def do_qos_ruse_token():
+    token_dims = (473, 473)
+    retile(
+        token_dims,
+        load_subimages(
+            token_dims,
+            (1, 1),
+            sorted(glob.glob("input/queen-of-shadows/ruse-*.png")),
+        ),
+        (2, 1),
+        "wip/queen-of-shadows/ruse-token-*.png",
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "3inx1.5in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/queen-of-shadows/ruse-token.pdf",
+            *sorted(glob.glob("wip/queen-of-shadows/ruse-token-*.png")),
+        ],
+        check=True,
+    )

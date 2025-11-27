@@ -33,6 +33,7 @@ from queen_of_shadows import (
     do_qos_player_board,
     do_qos_priority_tokens,
     do_qos_prisoner_tiles_helper,
+    do_qos_ruse_token,
     do_qos_shadow_cards,
     do_qos_title_cards,
 )
@@ -79,6 +80,7 @@ queen_of_shadows_tasks: Set[str] = set(
         "qos-priority-tokens",
         "qos-prisoner-tiles",
         "qos-prisoner-tiles-light-mode",
+        "qos-ruse-token",
     ]
 )
 
