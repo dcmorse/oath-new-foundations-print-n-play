@@ -11,6 +11,40 @@ from typesetting_helpers import (
 from PIL import Image, ImageOps
 
 
+def do_qos_altars():
+    altar_dims = (378, 497)
+    retile(
+        altar_dims,
+        load_subimages(
+            altar_dims,
+            (1, 1),
+            sorted(glob.glob("input/queen-of-shadows/altar-of-*.png")),
+        ),
+        (4, 2),
+        "wip/queen-of-shadows/altars-light-*.png",
+    )
+    for light_path in glob.glob("wip/queen-of-shadows/altars-light-*.png"):
+        img = Image.open(light_path).convert("RGB")
+        inverted = ImageOps.invert(img)
+        dark_path = light_path.replace("light", "dark")
+        inverted.save(dark_path)
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "5inx3.29in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/queen-of-shadows/altars.pdf",
+            *sorted(glob.glob("wip/queen-of-shadows/altars-dark-*.png")),
+        ],
+        check=True,
+    )
+
+
 def do_qos_priority_tokens():
     token_dims = (355, 355)
     retile(

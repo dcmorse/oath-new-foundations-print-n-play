@@ -26,6 +26,7 @@ from servant import (
     do_servant_reference_cards,
 )
 from queen_of_shadows import (
+    do_qos_altars,
     do_qos_chronicle_tasks,
     do_qos_darkness_track,
     do_qos_player_board,
@@ -67,6 +68,7 @@ servant_tasks: Set[str] = set(
 
 queen_of_shadows_tasks: Set[str] = set(
     [
+        "qos-altars",
         "qos-chronicle-tasks",
         "qos-darkness-track",
         "qos-shadow-cards",
