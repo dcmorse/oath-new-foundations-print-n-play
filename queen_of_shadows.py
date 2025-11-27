@@ -11,6 +11,40 @@ from typesetting_helpers import (
 from PIL import Image, ImageOps
 
 
+def do_qos_priority_tokens():
+    token_dims = (355, 355)
+    retile(
+        token_dims,
+        load_subimages(
+            token_dims,
+            (1, 1),
+            sorted(glob.glob("input/queen-of-shadows/priority-token-*.png")),
+        ),
+        (4, 2),
+        "wip/queen-of-shadows/priority-tokens-light-*.png",
+    )
+    for light_path in glob.glob("wip/queen-of-shadows/priority-tokens-light-*.png"):
+        img = Image.open(light_path).convert("RGB")
+        inverted = ImageOps.invert(img)
+        dark_path = light_path.replace("light", "dark")
+        inverted.save(dark_path)
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "5inx2.5in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/queen-of-shadows/priority-tokens.pdf",
+            *sorted(glob.glob("wip/queen-of-shadows/priority-tokens-dark-*.png")),
+        ],
+        check=True,
+    )
+
+
 def do_qos_darkness_track():
     # Ideally 4.75" x 11", but scaled it down to fit on letter paper with some margins
     darkness_track_dims = (3142, 1264)
