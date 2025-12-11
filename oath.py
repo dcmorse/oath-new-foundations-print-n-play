@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from typing import Iterable, Set, Tuple
 import argparse
 import glob
@@ -20,10 +21,14 @@ from typesetting_helpers import (
     typeset_landscape_bridge_cards,
 )
 from servant import (
-    do_servant_commands,
-    do_servant_display_board,
-    do_servant_moods,
-    do_servant_reference_cards,
+    do_servant_nf_commands,
+    do_servant_nf_display_board,
+    do_servant_nf_moods,
+    do_servant_nf_reference_cards,
+    do_servant_base_commands,
+    do_servant_base_display_board,
+    do_servant_base_moods,
+    do_servant_base_reference_cards,
 )
 from queen_of_shadows import (
     do_qos_altars,
@@ -67,6 +72,14 @@ servant_tasks: Set[str] = set(
         "servant-reference-cards",
     ]
 )
+
+servant_nf_tasks: Set[str] = {
+    task.replace("servant-", "servant-nf-") for task in servant_tasks
+}
+
+servant_base_tasks: Set[str] = {
+    task.replace("servant-", "servant-base-") for task in servant_tasks
+}
 
 queen_of_shadows_tasks: Set[str] = set(
     [
@@ -486,16 +499,26 @@ def main():
         help="Enable all New Foundations tasks",
     )
     parser.add_argument(
-        "--servant",
+        "--servant-nf",
         action="store_true",
-        help="Enable all Servant tasks",
+        help="Enable all Servant tasks - new foundations variant",
+    )
+    parser.add_argument(
+        "--servant-base",
+        action="store_true",
+        help="Enable all Servant tasks - base oath variant",
     )
     parser.add_argument(
         "--queen-of-shadows",
         action="store_true",
         help="Enable all Queen of Shadows tasks",
     )
-    for game_tasks in [new_foundation_tasks, servant_tasks, queen_of_shadows_tasks]:
+    for game_tasks in [
+        new_foundation_tasks,
+        servant_nf_tasks,
+        servant_base_tasks,
+        queen_of_shadows_tasks,
+    ]:
         for task in game_tasks:
             parser.add_argument(
                 f"--{task}",
@@ -515,13 +538,16 @@ def main():
     # default for the big game command line switches --new-foundations, --clockwork-adversaries
     for tasks, game_on in [
         (new_foundation_tasks, args0["new_foundations"]),
-        (servant_tasks, args0["servant"]),
+        (servant_nf_tasks, args0["servant_nf"]),
+        (servant_base_tasks, args0["servant_base"]),
         (queen_of_shadows_tasks, args0["queen_of_shadows"]),
     ]:
         for task in tasks:
             args1[task.replace("-", "_")] = bool(game_on)
     # set fine-grained per-component switches
-    for task in new_foundation_tasks.union(servant_tasks, queen_of_shadows_tasks):
+    for task in new_foundation_tasks.union(
+        servant_base_tasks, servant_nf_tasks, queen_of_shadows_tasks
+    ):
         if (b := args0.get(task.replace("-", "_"))) is not None:
             args1[task.replace("-", "_")] = b
     # run enabled tasks

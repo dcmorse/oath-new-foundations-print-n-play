@@ -3,9 +3,9 @@ set -ex
 
 rm -rf input/ 
 rm -rf output/ wip/ 
-mkdir -p input/{servant,queen-of-shadows} output/{servant,queen-of-shadows} wip/{servant,queen-of-shadows} releases/
+mkdir -p input/{servant-nf,servant-base,queen-of-shadows} output/{servant-nf,servant-base,queen-of-shadows} wip/{servant-nf,servant-base,queen-of-shadows} releases/
 ./make-player-aids
 python namer.py 
-python oath.py --new-foundations --servant --queen-of-shadows
+python oath.py --new-foundations --servant-nf --servant-base --queen-of-shadows
 rm -rf wip/*.* wip/*/*.*
 tar -zcf "releases/$(date -u +%Y-%m-%d-%H%M%S).tar.gz" output/ input/

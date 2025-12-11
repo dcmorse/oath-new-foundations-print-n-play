@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import csv
 import shutil
@@ -12,11 +13,11 @@ staging_dst_dir = "input"  # yes, the destination is called "input" - we're writ
 
 def name_map():
     with open("names.csv", "r", encoding="utf-8") as f:
-        return {row["tts_name"]: row["human_name"] for row in csv.DictReader(f)}
+        return {row["human_name"]: row["tts_name"] for row in csv.DictReader(f)}
 
 
 def copy_src_to_dst():
-    for tts_name, human_name in name_map().items():
+    for human_name, tts_name in name_map().items():
         src_path = os.path.join(tts_src_dir, tts_name)
         dst_path = os.path.join(staging_dst_dir, human_name)
         if not os.path.exists(src_path):

@@ -1,11 +1,16 @@
 import glob
 import subprocess
+from typing import Literal
 from retile import load_images_2up, load_subimages, retile, image_middle_not_all_white
 from typesetting_helpers import landscape_to_portrait, portrait_to_landscape
 import shutil
 
+ServantDir = Literal["servant-nf", "servant-base"]
+servant_base_dir = "servant-base"
+servant_nf_dir = "servant-nf"
 
-def do_servant_commands():
+
+def do_servant_commands(servant_dir: ServantDir):
     # 4039x5256
     # 6x4
     # denizen-sized
@@ -15,17 +20,17 @@ def do_servant_commands():
         load_subimages(
             servant_command_dims,
             (6, 4),
-            ["input/servant/commands.png"],
+            [f"input/{servant_dir}/commands.png"],
             filter=image_middle_not_all_white,
         ),
         (4, 2),
-        "wip/servant/commands-portrait-*.png",
+        f"wip/{servant_dir}/commands-portrait-*.png",
     )
-    portrait_to_landscape(glob.glob("wip/servant/commands-portrait-*.png"))
+    portrait_to_landscape(glob.glob(f"wip/{servant_dir}/commands-portrait-*.png"))
     subprocess.run(
         [
             "img2pdf",
-            *sorted(glob.glob("wip/servant/commands-landscape*.png")),
+            *sorted(glob.glob(f"wip/{servant_dir}/commands-landscape*.png")),
             "--pagesize",
             "letter",
             "--imgsize",
@@ -33,26 +38,35 @@ def do_servant_commands():
             "--fit",
             "shrink",
             "-o",
-            "output/servant/commands.pdf",
+            f"output/{servant_dir}/commands.pdf",
         ],
         check=True,
     )
 
 
-def do_servant_display_board():
+def do_servant_base_commands():
+    do_servant_commands(servant_base_dir)
+
+
+def do_servant_nf_commands():
+    do_servant_commands(servant_nf_dir)
+
+
+def do_servant_display_board(servant_dir: ServantDir):
     # 3220x1336 landscape
     # 1041 pixels is 3.5 inches
     # so overall height of 1336 is 4.5 inches
     # 681 pixels is 2.25 inches
     # overall width is about 10.75 inches
     shutil.copyfile(
-        "input/servant/display-board.png", "wip/servant/display-board-landscape.png"
+        f"input/{servant_dir}/display-board.png",
+        f"wip/{servant_dir}/display-board-landscape.png",
     )
-    landscape_to_portrait(["wip/servant/display-board-landscape.png"])
+    landscape_to_portrait([f"wip/{servant_dir}/display-board-landscape.png"])
     subprocess.run(
         [
             "img2pdf",
-            "wip/servant/display-board-portrait.png",
+            f"wip/{servant_dir}/display-board-portrait.png",
             "--pagesize",
             "letter",
             "--imgsize",
@@ -60,13 +74,21 @@ def do_servant_display_board():
             "--fit",
             "shrink",
             "-o",
-            "output/servant/display-board.pdf",
+            f"output/{servant_dir}/display-board.pdf",
         ],
         check=True,
     )
 
 
-def do_servant_moods():
+def do_servant_base_display_board():
+    do_servant_display_board(servant_base_dir)
+
+
+def do_servant_nf_display_board():
+    do_servant_display_board(servant_nf_dir)
+
+
+def do_servant_moods(servant_dir: ServantDir):
     # 4039x5256
     mood_portrait_dims = (676, 1051)
     retile(
@@ -74,17 +96,17 @@ def do_servant_moods():
         load_subimages(
             mood_portrait_dims,
             (6, 5),
-            ["input/servant/mood-fronts.png"],
+            [f"input/{servant_dir}/mood-fronts.png"],
             filter=image_middle_not_all_white,
         ),
         (4, 2),
-        "wip/servant/moods-portrait-*.png",
+        f"wip/{servant_dir}/moods-portrait-*.png",
     )
-    portrait_to_landscape(glob.glob("wip/servant/moods-portrait-*.png"))
+    portrait_to_landscape(glob.glob(f"wip/{servant_dir}/moods-portrait-*.png"))
     subprocess.run(
         [
             "img2pdf",
-            *sorted(glob.glob("wip/servant/moods-landscape*.png")),
+            *sorted(glob.glob(f"wip/{servant_dir}/moods-landscape*.png")),
             "--pagesize",
             "letter",
             "--imgsize",
@@ -92,13 +114,21 @@ def do_servant_moods():
             "--fit",
             "shrink",
             "-o",
-            "output/servant/moods.pdf",
+            f"output/{servant_dir}/moods.pdf",
         ],
         check=True,
     )
 
 
-def do_servant_reference_cards():
+def do_servant_base_moods():
+    do_servant_moods(servant_base_dir)
+
+
+def do_servant_nf_moods():
+    do_servant_moods(servant_nf_dir)
+
+
+def do_servant_reference_cards(servant_dir: ServantDir):
     # 4039x5256
     reference_card_dims = (673, 1051)
     retile(
@@ -106,18 +136,20 @@ def do_servant_reference_cards():
         load_images_2up(
             reference_card_dims,
             (6, 5),
-            ["input/servant/reference-fronts.png"],
-            ["input/servant/reference-backs.png"],
+            [f"input/{servant_dir}/reference-fronts.png"],
+            [f"input/{servant_dir}/reference-backs.png"],
             filter=image_middle_not_all_white,
         ),
         (4, 2),
-        "wip/servant/reference-cards-portrait-*.png",
+        f"wip/{servant_dir}/reference-cards-portrait-*.png",
     )
-    portrait_to_landscape(glob.glob("wip/servant/reference-cards-portrait-*.png"))
+    portrait_to_landscape(
+        glob.glob(f"wip/{servant_dir}/reference-cards-portrait-*.png")
+    )
     subprocess.run(
         [
             "img2pdf",
-            *sorted(glob.glob("wip/servant/reference-cards-landscape*.png")),
+            *sorted(glob.glob(f"wip/{servant_dir}/reference-cards-landscape*.png")),
             "--pagesize",
             "letter",
             "--imgsize",
@@ -125,7 +157,15 @@ def do_servant_reference_cards():
             "--fit",
             "shrink",
             "-o",
-            "output/servant/reference-cards.pdf",
+            f"output/{servant_dir}/reference-cards.pdf",
         ],
         check=True,
     )
+
+
+def do_servant_base_reference_cards():
+    do_servant_reference_cards(servant_base_dir)
+
+
+def do_servant_nf_reference_cards():
+    do_servant_reference_cards(servant_nf_dir)
