@@ -223,7 +223,7 @@ card_sheets = {
             BaseDenizen("Walled Garden"),
         ],
         [
-            BaseDenizen("Vow of Beastskin"),
+            BaseDenizen("Vow of Beastkin"),
             RevisedDenizen("Bracken"),
             BaseDenizen("Wild Allies"),
             NFDenizen("True Oath"),
@@ -405,7 +405,7 @@ card_sheets = {
         [
             RevisedDenizen("Bandit Chief"),
             BaseDenizen("Chaos Cult"),
-            RevisedDenizen("Slander"),
+            RevisedDenizen("Defame"),
             NFDenizen("Bandit Paymaster"),
             NFDenizen("Reliquary Maid"),
             NFDenizen("Tracker"),
