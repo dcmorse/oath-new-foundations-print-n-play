@@ -5,7 +5,6 @@ from PIL import Image
 from sys import argv
 from more_itertools import batched
 import math
-import glob
 
 import numpy as np
 

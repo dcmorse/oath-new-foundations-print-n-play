@@ -4,7 +4,7 @@ import argparse
 import glob
 import subprocess
 import re
-import filecmp
+import math
 from denizens import is_new_denizen
 from retile import (
     retile,
@@ -53,6 +53,7 @@ new_foundation_tasks = set(
         "denizens",
         "imperial-reliquary",
         "legacies",
+        "legacy-backs",
         "player-boards",
         # "reference-cards", - obsolete - now supplied on the side by Cole
         "relics",
@@ -296,6 +297,8 @@ def do_setup_cards():
     )
 
 
+legacy_src_size = (6, 6)
+
 def do_legacies():
     # 6307 x 4039 6x6
     m, n = denizen_portrait_dims
@@ -304,7 +307,7 @@ def do_legacies():
         src_dims,
         load_subimages(
             src_dims,
-            (6, 6),
+            legacy_src_size,
             sorted(glob.glob("input/Legacies*.jpg")),
             filter=image_middle_not_all_white,
         ),
@@ -313,6 +316,24 @@ def do_legacies():
     )
     typeset_landscape_bridge_cards(
         sorted(glob.glob("wip/legacies-portrait*.png")), "output/legacies.pdf"
+    )
+
+
+def do_legacy_backs():
+    m, n = denizen_portrait_dims
+    src_dims = (n, m)
+    retile(
+        src_dims,
+        load_subimages(
+            src_dims,
+            (1, 1),
+            math.prod(legacy_src_size) * ["input/legacy-back.jpg"],
+        ),
+        (2, 4),
+        "wip/legacy-backs-portrait-*.png",
+    )
+    typeset_landscape_bridge_cards(
+        sorted(glob.glob("wip/legacy-backs-portrait*.png")), "output/legacy-backs.pdf"
     )
 
 
