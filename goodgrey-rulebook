@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+set -ex
+
+# Beware, executor. This is more a set of notes than a serious script. 
+
+for i in {0..47}; do   convert -density 300 "Combined Oath Rulebook-5.pdf[$i]" -colorspace Gray -level 0%,90% "page-$(printf '%02d' $i).pdf"; done
+pdfunite page*.pdf combined-oath-rulebook-goodgrey-2026-01-22.pdf 
