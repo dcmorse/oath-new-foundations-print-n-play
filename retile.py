@@ -1,6 +1,5 @@
-from ctypes import Array
 from itertools import count
-from typing import Generator, List, Tuple
+from typing import Generator, List, Tuple, Iterable
 from PIL import Image
 from sys import argv
 from more_itertools import batched
@@ -45,7 +44,7 @@ def image_middle_not_all_white(
 def load_subimages(
     subimg_size: Tuple[int, int],
     src_grid_dims: Tuple[int, int],
-    src_files: Array[str],
+    src_files: Iterable[str],
     *,
     filter=truly,
     # If numpy_filter is specified, ignore regular filter.
@@ -69,8 +68,8 @@ def load_subimages(
 def load_images_2up(
     subimg_size: Tuple[int, int],
     src_grid_dims: Tuple[int, int],
-    src_front_files: Array[str],
-    src_back_files: Array[str],
+    src_front_files: Iterable[str],
+    src_back_files: Iterable[str],
     *,
     filter=truly,
 ) -> Generator[List[Image.Image], None, None]:

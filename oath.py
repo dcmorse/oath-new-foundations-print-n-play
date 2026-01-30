@@ -1,17 +1,17 @@
 #!/usr/bin/env python
+from denizens import is_unchanged_denizen
 from typing import Iterable, Set, Tuple
 import argparse
 import glob
 import subprocess
 import re
 import math
-from denizens import is_new_denizen
+from denizens import is_new_denizen, is_unchanged_denizen
 from retile import (
     retile,
     image_middle_not_all_white,
     load_subimages,
     load_images_2up,
-    truly,
 )
 from typesetting_helpers import (
     do_tarot_cards,
@@ -50,7 +50,7 @@ new_foundation_tasks = set(
         "banner-token",
         "chronicle-tasks",
         "edifices",
-        "denizens",
+        "new-denizens",
         "imperial-reliquary",
         "legacies",
         "legacy-backs",
@@ -64,6 +64,9 @@ new_foundation_tasks = set(
         "visions",
     ]
 )
+
+
+base_tasks = set(["unchanged-denizens"])
 
 servant_tasks: Set[str] = set(
     [
@@ -110,7 +113,7 @@ def do_qos_prisoner_tiles_light_mode():
 denizen_portrait_dims = (673, 1051)
 
 
-def do_denizens():
+def do_new_denizens():
     # 6731 x 5256
     retile(
         denizen_portrait_dims,
@@ -121,11 +124,31 @@ def do_denizens():
             filter=is_new_denizen,
         ),
         (4, 2),
-        "wip/denizens-portrait-*.png",
+        "wip/new-denizens-portrait-*.png",
     )
-    portrait_to_landscape(glob.glob("wip/denizens-portrait-*.png"))
+    portrait_to_landscape(glob.glob("wip/new-denizens-portrait-*.png"))
     typeset_landscape_bridge_cards(
-        sorted(glob.glob("wip/denizens-landscape*.png")), "output/denizens.pdf"
+        sorted(glob.glob("wip/new-denizens-landscape*.png")), "output/denizens.pdf"
+    )
+
+
+def do_unchanged_denizens():
+    # 6731 x 5256
+    retile(
+        denizen_portrait_dims,
+        load_subimages(
+            denizen_portrait_dims,
+            (10, 5),
+            sorted(glob.glob("input/Denizens*.jpg")),
+            filter=is_unchanged_denizen,
+        ),
+        (4, 2),
+        "wip/base/unchanged-denizens-portrait-*.png",
+    )
+    portrait_to_landscape(glob.glob("wip/base/unchanged-denizens-portrait-*.png"))
+    typeset_landscape_bridge_cards(
+        sorted(glob.glob("wip/base/unchanged-denizens-landscape*.png")),
+        "output/base/unchanged-denizens.pdf",
     )
 
 
@@ -534,11 +557,17 @@ def main():
         action="store_true",
         help="Enable all Queen of Shadows tasks",
     )
+    parser.add_argument(
+        "--base",
+        action="store_true",
+        help="Enable all Base Game tasks - note that the base game is not completely printable",
+    )
     for game_tasks in [
         new_foundation_tasks,
         servant_nf_tasks,
         servant_base_tasks,
         queen_of_shadows_tasks,
+        base_tasks,
     ]:
         for task in game_tasks:
             parser.add_argument(
@@ -562,12 +591,13 @@ def main():
         (servant_nf_tasks, args0["servant_nf"]),
         (servant_base_tasks, args0["servant_base"]),
         (queen_of_shadows_tasks, args0["queen_of_shadows"]),
+        (base_tasks, args0["base"]),
     ]:
         for task in tasks:
             args1[task.replace("-", "_")] = bool(game_on)
     # set fine-grained per-component switches
     for task in new_foundation_tasks.union(
-        servant_base_tasks, servant_nf_tasks, queen_of_shadows_tasks
+        servant_base_tasks, servant_nf_tasks, queen_of_shadows_tasks, base_tasks
     ):
         if (b := args0.get(task.replace("-", "_"))) is not None:
             args1[task.replace("-", "_")] = b

@@ -16,38 +16,67 @@ class Denizen(ABC):
         return self._name
 
     @abstractmethod
-    def prints(self) -> bool:
+    def prints_for_new_foundations(self) -> bool:
+        pass
+
+    @abstractmethod
+    def prints_for_unchanged_denizens(self) -> bool:
         pass
 
 
 class BaseDenizen(Denizen):
-    def prints(self) -> bool:
+
+    def prints_for_new_foundations(self) -> bool:
         return False
+
+    def prints_for_unchanged_denizens(self) -> bool:
+        return True
 
 
 class RevisedDenizen(Denizen):
-    def prints(self) -> bool:
+
+    def prints_for_new_foundations(self) -> bool:
         return True
+
+    def prints_for_unchanged_denizens(self) -> bool:
+        return False
 
 
 class NFDenizen(Denizen):
-    def prints(self) -> bool:
+
+    def prints_for_new_foundations(self) -> bool:
         return True
+
+    def prints_for_unchanged_denizens(self) -> bool:
+        return False
 
 
 class DudEdifice(Denizen):
-    def prints(self) -> bool:
+
+    def prints_for_new_foundations(self) -> bool:
+        return False
+
+    def prints_for_unchanged_denizens(self) -> bool:
         return False
 
 
 class DeletedDenizen(Denizen):
-    def prints(self) -> bool:
+
+    def prints_for_new_foundations(self) -> bool:
+        return False
+
+    def prints_for_unchanged_denizens(self) -> bool:
         return False
 
 
 def is_new_denizen(src_img, subimage_size, card_idxs) -> bool:
     denizen = img_denizen(src_img, card_idxs)
-    return denizen and denizen.prints()
+    return bool(denizen) and denizen.prints_for_new_foundations()
+
+
+def is_unchanged_denizen(src_img, subimage_size, card_idxs) -> bool:
+    denizen = img_denizen(src_img, card_idxs)
+    return bool(denizen) and denizen.prints_for_unchanged_denizens()
 
 
 def denizen_img_suit(src_img) -> str:
