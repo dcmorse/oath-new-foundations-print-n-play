@@ -1,5 +1,5 @@
 from itertools import count
-from typing import Generator, List, Tuple, Iterable
+from typing import Generator, List, Tuple, Iterable, Set, TypeVar
 from PIL import Image
 from sys import argv
 from more_itertools import batched
@@ -39,6 +39,16 @@ def image_middle_not_all_white(
     else:
         # grayscale
         return not (extrema[0] == extrema[1] == 255)
+
+X = TypeVar("X")
+
+
+def filter_by_idx(
+    stream: Generator[X, None, None], idxs: Set[int]
+) -> Generator[X, None, None]:
+    for i, item in enumerate(stream):
+        if i in idxs:
+            yield item
 
 
 def load_subimages(
