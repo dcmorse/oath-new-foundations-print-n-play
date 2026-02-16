@@ -51,10 +51,13 @@ new_foundation_tasks = set(
         "banner-token",
         "chronicle-tasks",
         "edifices",
-        "new-denizens",
+        "first-player-marker",
         "imperial-reliquary",
         "legacies",
         "legacy-backs",
+        "new-denizens",
+        "oathkeeper-goals",
+        "oathkeeper-title",
         "player-boards",
         "reference-cards",
         "relics",
@@ -261,6 +264,24 @@ def do_chronicle_tasks():
     )
 
 
+def do_first_player_marker():
+    # src_dims = (602, 829)
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "3inx2in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/first-player-marker.pdf",
+            "input/first-player-marker.jpg",
+        ]
+    )
+
+
 def do_imperial_reliquary():
     imperial_reliquary_dims = (661, 661)
     retile(
@@ -362,6 +383,62 @@ def do_legacy_backs():
     )
     typeset_landscape_bridge_cards(
         sorted(glob.glob("wip/legacy-backs-portrait*.png")), "output/legacy-backs.pdf"
+    )
+
+
+def do_oathkeeper_goals():
+    src_dims = (673, 898)
+    retile(
+        src_dims,
+        load_subimages(
+            src_dims,
+            (1, 1),
+            glob.glob("input/oathkeeper-of-*.jpg"),
+        ),
+        dst_dims=(2, 2),
+        dst_glob="wip/oathkeeper-goals-*.png",
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "5inx6in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/oathkeeper-goals.pdf",
+            *sorted(glob.glob("wip/oathkeeper-goals-*.png")),
+        ]
+    )
+
+
+def do_oathkeeper_title():
+    src_dims = (602, 829)
+    retile(
+        src_dims,
+        load_subimages(
+            src_dims,
+            (1, 1),
+            glob.glob("input/*per-title.jpg"),  # {oathkee,usur}per-title
+        ),
+        dst_dims=(2, 1),
+        dst_glob="wip/oathkeeper-title-*.png",
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "4inx3in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/oathkeeper-title.pdf",
+            *sorted(glob.glob("wip/oathkeeper-title-*.png")),
+        ]
     )
 
 
