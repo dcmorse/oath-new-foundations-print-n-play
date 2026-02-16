@@ -58,7 +58,7 @@ new_foundation_tasks = set(
         "player-boards",
         "reference-cards",
         "relics",
-        "rise-of-the-first-chancellor",
+        # "rise-of-the-first-chancellor", # replaced by setup cards:
         "setup-cards",
         "sites",
         "usurper-limiter",
@@ -413,7 +413,7 @@ def do_reference_cards():
     )
 
 
-relic_dims = (673, 673)  # Grand Scepter has different dimensions
+relic_dims = (673, 673)
 
 
 def id(x, *args):
@@ -447,11 +447,10 @@ def do_relics():
         ],
         check=True,
     )
-    grand_scepter_dims = (673, 898)
     retile(
-        grand_scepter_dims,
+        relic_dims,
         load_subimages(
-            grand_scepter_dims, (1, 1), glob.glob("input/Relic The Grand Scepter *.jpg")
+            relic_dims, (1, 1), glob.glob("input/Relic The Grand Scepter *.jpg")
         ),
         (2, 1),
         "wip/relic-grand-scepter-*.png",
@@ -472,12 +471,12 @@ def do_relics():
         check=True,
     )
 
-
-def do_rise_of_the_first_chancellor():
-    do_tarot_cards(
-        src_filenames=sorted(glob.glob("input/RotFC *.jpg")),
-        basename="rise-of-the-first-chancellor",
-    )
+# replaced by setup cards:
+# def do_rise_of_the_first_chancellor():
+#     do_tarot_cards(
+#         src_filenames=sorted(glob.glob("input/RotFC *.jpg")),
+#         basename="rise-of-the-first-chancellor",
+#     )
 
 
 def do_sites():
