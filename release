@@ -4,7 +4,7 @@ set -ex
 rm -rf input/ 
 rm -rf output/ wip/ 
 mkdir -p input/{servant-nf,servant-base,queen-of-shadows,base} output/{servant-nf,servant-base,queen-of-shadows,base} wip/{servant-nf,servant-base,queen-of-shadows,base} releases/
-./make-player-aids
+# ./make-player-aids-from-pdf # now done from scraped images once again
 python namer.py 
 python oath.py --new-foundations --servant-nf --servant-base --queen-of-shadows --base
 rm -rf wip/*.* wip/*/*.*

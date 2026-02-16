@@ -12,6 +12,7 @@ from retile import (
     image_middle_not_all_white,
     load_subimages,
     load_images_2up,
+    filter_by_idx,
 )
 from typesetting_helpers import (
     do_tarot_cards,
@@ -55,7 +56,7 @@ new_foundation_tasks = set(
         "legacies",
         "legacy-backs",
         "player-boards",
-        # "reference-cards", - obsolete - now supplied on the side by Cole
+        "reference-cards",
         "relics",
         "rise-of-the-first-chancellor",
         "setup-cards",
@@ -239,6 +240,7 @@ def do_chronicle_tasks():
             ["input/Chronicle Tasks 2.jpg"],
             filter=image_middle_not_all_white,
         ),
+        # {0, 1, 2, 3, 8},
         (2, 2),
         "wip/chronicle-tasks-*.png",
     )
@@ -299,6 +301,7 @@ def do_setup_cards():
             ["input/Setup Cards B.jpg"],
             filter=image_middle_not_all_white,
         ),
+        # {4, 5},
         (4, 2),
         "wip/setup-cards-portrait-*.png",
     )
@@ -334,6 +337,8 @@ def do_legacies():
             sorted(glob.glob("input/Legacies*.jpg")),
             filter=image_middle_not_all_white,
         ),
+        # {0, 10, 16},
+        # {1, 5, 15, 16, 20, 23},
         (2, 4),
         "wip/legacies-portrait-*.png",
     )
@@ -393,16 +398,15 @@ def do_player_boards():
     )
 
 
-# obsolete - now supplied on the side by Cole
 def do_reference_cards():
     do_tarot_cards(
         [
             f"input/{fn}"
             for fn in [
-                "Reference Actions.jpg",
-                "Reference Card Restrictions and Powers.jpg",
-                "Reference Misc Actions.jpg",
-                "Site 1 Reference.jpg",
+                "reference-actions.jpg",
+                "reference-campaign-recover-challenge.jpg",
+                "reference-minor-and-card-powers.jpg",
+                "reference-site.jpg",
             ]
         ],
         "reference-cards",
@@ -412,12 +416,19 @@ def do_reference_cards():
 relic_dims = (673, 673)  # Grand Scepter has different dimensions
 
 
+def id(x, *args):
+    return x
+
+
 def do_relics():
     # 6731 x 3365 (plus other rows beneath)
     """including the grand scepter"""
     retile(
         relic_dims,
-        load_subimages(relic_dims, (10, 5), sorted(glob.glob("input/Relics*.jpg"))),
+        id(
+            load_subimages(relic_dims, (10, 5), sorted(glob.glob("input/Relics*.jpg"))),
+            # {2, 5, 7, 10, 20, 24, 27, 28, 29, 31, 34, 45, 46, 49},
+        ),
         (3, 4),
         "wip/relics-*.png",
     )
