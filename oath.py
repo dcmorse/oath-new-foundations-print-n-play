@@ -57,6 +57,7 @@ new_foundation_tasks = set(
         "legacy-backs",
         "new-denizens",
         "oathkeeper-goals",
+        "oathkeeper-goal-backs",
         "oathkeeper-title",
         "player-boards",
         "reference-cards",
@@ -410,6 +411,34 @@ def do_oathkeeper_goals():
             "-o",
             "output/oathkeeper-goals.pdf",
             *sorted(glob.glob("wip/oathkeeper-goals-*.png")),
+        ]
+    )
+
+
+def do_oathkeeper_goal_backs():
+    src_dims = (673, 898)
+    retile(
+        src_dims,
+        load_subimages(
+            src_dims,
+            (1, 1),
+            ["input/oathkeeper-goal-back.jpg"] * 4,
+        ),
+        dst_dims=(2, 2),
+        dst_glob="wip/oathkeeper-goal-backs-*.png",
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "5inx6in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/oathkeeper-goal-backs.pdf",
+            *sorted(glob.glob("wip/oathkeeper-goal-backs-*.png")),
         ]
     )
 
