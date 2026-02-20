@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-from denizens import is_unchanged_denizen
-from typing import Iterable, Set, Tuple
+
+from PIL import Image
+from denizens import is_unchanged_denizen, is_one_of_these_denizens
+from typing import Iterable, Set
 import argparse
 import glob
 import subprocess
@@ -45,6 +47,11 @@ from queen_of_shadows import (
 )
 
 
+def id(x, *args):
+    """Identity function"""
+    return x
+
+
 new_foundation_tasks = set(
     [
         "banners",
@@ -61,8 +68,10 @@ new_foundation_tasks = set(
         "oathkeeper-title",
         "player-boards",
         "reference-cards",
+        "relic-backs",
         "relics",
-        # "rise-of-the-first-chancellor", # replaced by setup cards:
+        "relic-grand-scepter",
+        # "rise-of-the-first-chancellor", # made obsolete by setup cards
         "setup-cards",
         "sites",
         "usurper-limiter",
@@ -120,17 +129,40 @@ denizen_portrait_dims = (673, 1051)
 
 def do_new_denizens():
     # 6731 x 5256
+    is_different = is_one_of_these_denizens(
+        {
+            "Vow of Silence",
+            "Long-Lost Heir",
+            "Vow of Union",
+            "Hunger",
+            "Royal Ambitions",
+            "Ballot Box",
+            "Town Meeting",
+            "Skilled Merchants",
+            "Family Wagon",
+            "Search Party",
+            "Martial Culture",
+            "Battle Axes",
+        }
+    )
+
+    def filter(*args) -> bool:
+        return is_new_denizen(
+            *args
+        )  # and is_different(*args) # Feb 17 update's new denizens
+
     retile(
         denizen_portrait_dims,
         load_subimages(
             denizen_portrait_dims,
             (10, 5),
             sorted(glob.glob("input/Denizens*.jpg")),
-            filter=is_new_denizen,
+            filter=filter,
         ),
         (4, 2),
         "wip/new-denizens-portrait-*.png",
-    )
+    ),
+
     portrait_to_landscape(glob.glob("wip/new-denizens-portrait-*.png"))
     typeset_landscape_bridge_cards(
         sorted(glob.glob("wip/new-denizens-landscape*.png")), "output/denizens.pdf"
@@ -163,15 +195,39 @@ ediface_portrait_dims = (671, 1050)  # recall that denizen_portrait_dims = (673,
 def do_edifices():
     retile(
         ediface_portrait_dims,
-        load_images_2up(
-            ediface_portrait_dims,
-            (5, 1),
-            (
-                e
-                for e in sorted(glob.glob("input/Edifice*.jpg"))
-                if not re.search(r"ruined", e, re.IGNORECASE)
+        id(
+            load_images_2up(
+                ediface_portrait_dims,
+                (5, 1),
+                (
+                    e
+                    for e in sorted(glob.glob("input/Edifice*.jpg"))
+                    if not re.search(r"ruined", e, re.IGNORECASE)
+                ),
+                sorted(glob.glob("input/Edifice*Ruined.jpg")),
             ),
-            sorted(glob.glob("input/Edifice*Ruined.jpg")),
+            {  # indexes of edifices changed on Feb 17 2026
+                2,
+                3,
+                4,
+                10,
+                13,
+                14,
+                20,
+                21,
+                22,
+                25,
+                27,
+                29,
+                31,
+                32,
+                39,
+                43,
+                45,
+                47,
+                50,
+                55,
+            },
         ),
         (4, 2),
         "wip/edifices-portrait-*.png",
@@ -237,12 +293,15 @@ def do_banners():
 def do_chronicle_tasks():
     retile(
         tarot_landscape_dims,
-        load_images_2up(
-            tarot_landscape_dims,
-            (3, 2),
-            ["input/Chronicle Tasks 1.jpg"],
-            ["input/Chronicle Tasks 2.jpg"],
-            filter=image_middle_not_all_white,
+        filter_by_idx(
+            load_images_2up(
+                tarot_landscape_dims,
+                (3, 2),
+                ["input/Chronicle Tasks 1.jpg"],
+                ["input/Chronicle Tasks 2.jpg"],
+                filter=image_middle_not_all_white,
+            ),
+            {4, 5, 6, 7},
         ),
         # {0, 1, 2, 3, 8},
         (2, 2),
@@ -353,14 +412,18 @@ def do_legacies():
     src_dims = (n, m)
     retile(
         src_dims,
-        load_subimages(
-            src_dims,
-            legacy_src_size,
-            sorted(glob.glob("input/Legacies*.jpg")),
-            filter=image_middle_not_all_white,
+        id(
+            load_subimages(
+                src_dims,
+                legacy_src_size,
+                sorted(glob.glob("input/Legacies*.jpg")),
+                filter=image_middle_not_all_white,
+            ),
+            # {29},
+            # {0, 10, 24, 29, 31},
+            # {0, 10, 16},
+            # {1, 5, 15, 16, 20, 23},
         ),
-        # {0, 10, 16},
-        # {1, 5, 15, 16, 20, 23},
         (2, 4),
         "wip/legacies-portrait-*.png",
     )
@@ -477,11 +540,14 @@ def do_player_boards():
     src_dims = (2350, 1122)
     retile(
         src_dims,
-        load_images_2up(
-            src_dims,
-            (2, 4),
-            ["input/Player Boards 1.jpg"],
-            ["input/Player Boards 2.jpg"],
+        id(
+            load_images_2up(
+                src_dims,
+                (2, 4),
+                ["input/Player Boards 1.jpg"],
+                ["input/Player Boards 2.jpg"],
+            ),
+            # {0, 3, 5, 7, 9, 11, 13, 15}, # indexes of player boards changed on Feb 17 2026
         ),
         (1, 2),
         "wip/player-boards-landscape-*.png",
@@ -519,16 +585,41 @@ def do_reference_cards():
     )
 
 
+def do_relic_backs():
+    huge_img = Image.open("input/relic-back.jpg")
+    if huge_img.width < 1000 or huge_img.height < 1000:
+        raise ValueError(
+            "Oh, someone downsampled the relic back to be a sane resolution. We should adjust this code."
+        )
+    img = huge_img.resize(
+        (huge_img.width // 2, huge_img.height // 2), resample=Image.BOX
+    )
+    retile(
+        (img.width, img.height),
+        47 * [img],
+        (3, 4),
+        "wip/relic-backs-*.png",
+    )
+    subprocess.run(
+        [
+            "img2pdf",
+            "--pagesize",
+            "letter",
+            "--imgsize",
+            "6.75inx9in",
+            "--fit",
+            "shrink",
+            "-o",
+            "output/relic-backs.pdf",
+            *sorted(glob.glob("wip/relic-backs-*.png")),
+        ],
+        check=True,
+    )
+
+
 relic_dims = (673, 673)
-
-
-def id(x, *args):
-    return x
-
-
 def do_relics():
     # 6731 x 3365 (plus other rows beneath)
-    """including the grand scepter"""
     retile(
         relic_dims,
         id(
@@ -553,6 +644,9 @@ def do_relics():
         ],
         check=True,
     )
+
+
+def do_relic_grand_scepter():
     retile(
         relic_dims,
         load_subimages(
@@ -576,6 +670,7 @@ def do_relics():
         ],
         check=True,
     )
+
 
 # replaced by setup cards:
 # def do_rise_of_the_first_chancellor():

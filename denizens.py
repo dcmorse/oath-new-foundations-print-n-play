@@ -1,6 +1,6 @@
 import math
 import glob
-from typing import List, Tuple
+from typing import List, Tuple, Generator, Set, Callable
 from abc import ABC, abstractmethod
 from PIL import Image
 from PIL import ImageColor
@@ -91,6 +91,19 @@ def img_denizen(src_img, card_idxs) -> Denizen | None:
     i, j = card_idxs
     row = card_sheets[denizen_img_suit(src_img)][j]
     return row[i] if i < len(row) else None
+
+
+def is_one_of_these_denizens(
+    names: Set[str],
+) -> Callable[[Image.Image, Tuple[int, int], Tuple[int, int]], bool]:
+    def filter(src_img, subimage_size, card_idxs) -> bool:
+        d = img_denizen(src_img, card_idxs)
+        if d == None:
+            raise ValueError(f"Could not determine denizen for image {src_img}")
+        else:
+            return d.name in names
+
+    return filter
 
 
 card_sheets = {
