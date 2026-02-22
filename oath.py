@@ -57,6 +57,7 @@ new_foundation_tasks = set(
         "banners",
         "banner-token",
         "chronicle-tasks",
+        # "dormant-legacy-backs", # homebrew idea, not really a pnp thing
         "edifices",
         "first-player-marker",
         "imperial-reliquary",
@@ -448,6 +449,26 @@ def do_legacy_backs():
     typeset_landscape_bridge_cards(
         sorted(glob.glob("wip/legacy-backs-portrait*.png")), "output/legacy-backs.pdf"
     )
+
+
+# Not part of any product - just a homebrew idea.
+# def do_dormant_legacy_backs():
+#     m, n = denizen_portrait_dims
+#     src_dims = (n, m)
+#     retile(
+#         src_dims,
+#         load_subimages(
+#             src_dims,
+#             (1, 1),
+#             8 * ["input/dormant-legacy-back.png"],
+#         ),
+#         (2, 4),
+#         "wip/dormant-legacy-backs-portrait-*.png",
+#     )
+#     typeset_landscape_bridge_cards(
+#         sorted(glob.glob("wip/dormant-legacy-backs-portrait*.png")),
+#         "output/dormant-legacy-backs.pdf",
+#     )
 
 
 def do_oathkeeper_goals():
