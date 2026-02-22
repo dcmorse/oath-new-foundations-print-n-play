@@ -64,6 +64,7 @@ new_foundation_tasks = set(
         "legacies",
         "legacy-backs",
         "new-denizens",
+        "new-denizen-backs",
         "oathkeeper-goals",
         "oathkeeper-goal-backs",
         "oathkeeper-title",
@@ -167,6 +168,21 @@ def do_new_denizens():
     portrait_to_landscape(glob.glob("wip/new-denizens-portrait-*.png"))
     typeset_landscape_bridge_cards(
         sorted(glob.glob("wip/new-denizens-landscape*.png")), "output/denizens.pdf"
+    )
+
+
+def do_new_denizen_backs():
+    dims = (337, 526)
+    retile(
+        dims,
+        60 * [Image.open("input/denizen-back.jpg")],
+        (4, 2),
+        "wip/new-denizen-backs-portrait-*.png",
+    ),
+    portrait_to_landscape(glob.glob("wip/new-denizen-backs-portrait-*.png"))
+    typeset_landscape_bridge_cards(
+        sorted(glob.glob("wip/new-denizen-backs-landscape*.png")),
+        "output/denizen-backs.pdf",
     )
 
 
