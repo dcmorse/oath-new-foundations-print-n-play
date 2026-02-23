@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+INPUT="new-foundations-scorepad-raw.pdf"
+OUTPUT="output/new-foundations-scorepad-us-letter.pdf"
+
+cp $INPUT output/ # publish the raw in case they want it too.
+
+pdfjam \
+  --paper letterpaper \
+  --no-landscape \
+  --nup 1x2 \
+  --delta "0 36pt" \
+  --offset "0 0" \
+  --scale 0.95 \
+  --outfile "$OUTPUT" \
+  "$INPUT" '2,1'
+# pdfjam --no-tidy --nup 1x2 --scale 0.95 --frame true --outfile output/new-foundations-scorepad-US.pdf new-foundations-scorepad-raw.pdf 2,1
+echo all ok
+exit 0
