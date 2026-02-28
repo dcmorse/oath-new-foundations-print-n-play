@@ -310,7 +310,7 @@ def do_banners():
 def do_chronicle_tasks():
     retile(
         tarot_landscape_dims,
-        filter_by_idx(
+        id(
             load_images_2up(
                 tarot_landscape_dims,
                 (3, 2),
@@ -318,9 +318,9 @@ def do_chronicle_tasks():
                 ["input/Chronicle Tasks 2.jpg"],
                 filter=image_middle_not_all_white,
             ),
-            {4, 5, 6, 7},
+            # {4, 5, 6, 7},
+            # {0, 1, 2, 3, 8},
         ),
-        # {0, 1, 2, 3, 8},
         (2, 2),
         "wip/chronicle-tasks-*.png",
     )
