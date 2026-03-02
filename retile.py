@@ -51,6 +51,14 @@ def filter_by_idx(
             yield item
 
 
+def filter_by_idx_not(
+    stream: Generator[X, None, None], idxs: Set[int]
+) -> Generator[X, None, None]:
+    for i, item in enumerate(stream):
+        if i not in idxs:
+            yield item
+
+
 def load_subimages(
     subimg_size: Tuple[int, int],
     src_grid_dims: Tuple[int, int],

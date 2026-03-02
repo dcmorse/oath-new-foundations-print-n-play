@@ -15,6 +15,7 @@ from retile import (
     load_subimages,
     load_images_2up,
     filter_by_idx,
+    filter_by_idx_not,
 )
 from typesetting_helpers import (
     do_tarot_cards,
@@ -133,25 +134,16 @@ def do_new_denizens():
     # 6731 x 5256
     is_different = is_one_of_these_denizens(
         {
-            "Vow of Silence",
-            "Long-Lost Heir",
             "Vow of Union",
-            "Hunger",
-            "Royal Ambitions",
-            "Ballot Box",
-            "Town Meeting",
-            "Skilled Merchants",
-            "Family Wagon",
-            "Search Party",
-            "Martial Culture",
-            "Battle Axes",
+            "Giant Python",
+            "Forest Council",
+            "Keep",
+            "City Wall",
         }
     )
 
     def filter(*args) -> bool:
-        return is_new_denizen(
-            *args
-        )  # and is_different(*args) # Feb 17 update's new denizens
+        return is_new_denizen(*args)  # and is_different(*args)
 
     retile(
         denizen_portrait_dims,
@@ -223,28 +215,7 @@ def do_edifices():
                 ),
                 sorted(glob.glob("input/Edifice*Ruined.jpg")),
             ),
-            {  # indexes of edifices changed on Feb 17 2026
-                2,
-                3,
-                4,
-                10,
-                13,
-                14,
-                20,
-                21,
-                22,
-                25,
-                27,
-                29,
-                31,
-                32,
-                39,
-                43,
-                45,
-                47,
-                50,
-                55,
-            },
+            # {1, 17},
         ),
         (4, 2),
         "wip/edifices-portrait-*.png",
@@ -278,14 +249,17 @@ def do_banners():
     bs = []
     retile(
         banner_dims,
-        load_subimages(
-            banner_dims,
-            (1, 1),
-            (
-                b
-                for b in glob.glob("input/Banner*.jpg")
-                if not re.search(r"banner.token", b, re.IGNORECASE)
+        id(
+            load_subimages(
+                banner_dims,
+                (1, 1),
+                (
+                    b
+                    for b in glob.glob("input/Banner*.jpg")
+                    if not re.search(r"banner.token", b, re.IGNORECASE)
+                ),
             ),
+            # {1},
         ),
         (2, 2),
         "wip/banners-*.png",
@@ -436,6 +410,7 @@ def do_legacies():
                 sorted(glob.glob("input/Legacies*.jpg")),
                 filter=image_middle_not_all_white,
             ),
+            # {16, 20},
             # {29},
             # {0, 10, 24, 29, 31},
             # {0, 10, 16},
@@ -659,10 +634,11 @@ def do_relics():
     # 6731 x 3365 (plus other rows beneath)
     retile(
         relic_dims,
-        id(
+        filter_by_idx_not(
             load_subimages(relic_dims, (10, 5), sorted(glob.glob("input/Relics*.jpg"))),
-            # {2, 5, 7, 10, 20, 24, 27, 28, 29, 31, 34, 45, 46, 49},
-        ),
+            {32, 37, 40},
+        ),  # filter out "Delete this card and draw a new Relic" relics
+        # {2, 5, 7, 10, 20, 24, 27, 28, 29, 31, 34, 45, 46, 49},
         (3, 4),
         "wip/relics-*.png",
     )
