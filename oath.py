@@ -77,6 +77,7 @@ new_foundation_tasks = set(
         # "rise-of-the-first-chancellor", # made obsolete by setup cards
         "setup-cards",
         "sites",
+        "site-backs",
         "usurper-limiter",
         "visions",
     ]
@@ -729,6 +730,40 @@ def do_sites():
         ],
         check=True,
     )
+
+
+def do_site_backs():
+    site_back_dims = (1313, 1016)
+    back = Image.open("input/site-back.jpg")
+    for nup in [1, 4]:
+        retile(
+            site_back_dims,
+            nup * [back],
+            (2, 2),
+            f"wip/site-backs-{nup}up-landscape-*.png",
+        )
+    landscape_to_portrait(glob.glob("wip/site-backs-1up-landscape-*.png"))
+    landscape_to_portrait(glob.glob("wip/site-backs-4up-landscape-*.png"))
+
+    def img_to_pdf(nup):
+        subprocess.run(
+            [
+                "img2pdf",
+                "--pagesize",
+                "letter",
+                "--imgsize",
+                "7inx9in",
+                "--fit",
+                "shrink",
+                "-o",
+                f"output/site-backs-{nup}up.pdf",
+                *sorted(glob.glob(f"wip/site-backs-{nup}up-portrait*.png")),
+            ],
+            check=True,
+        )
+
+    img_to_pdf(1)
+    img_to_pdf(4)
 
 
 def do_usurper_limiter():

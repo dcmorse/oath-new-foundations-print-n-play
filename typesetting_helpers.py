@@ -7,6 +7,8 @@ from retile import load_subimages, retile, truly
 def landscape_to_portrait(src_filenames: Iterable[str], *, ccw: bool = False):
     print("landscape_to_portrait")
     rotation = "-90" if ccw else "90"
+    if not src_filenames:
+        raise ValueError("no files to rotate")
     for landscape_file in src_filenames:
         portrait_file = landscape_file.replace("-landscape", "-portrait")
         subprocess.run(
@@ -16,6 +18,8 @@ def landscape_to_portrait(src_filenames: Iterable[str], *, ccw: bool = False):
 
 def portrait_to_landscape(src_filenames: Iterable[str], *, ccw: bool = False):
     print("portrait_to_landscape")
+    if not src_filenames:
+        raise ValueError("no files to rotate")
     rotation = "-90" if ccw else "90"
     for portrait_file in src_filenames:
         landscape_file = portrait_file.replace("-portrait", "-landscape")
