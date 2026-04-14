@@ -133,18 +133,24 @@ denizen_portrait_dims = (673, 1051)
 
 def do_new_denizens():
     # 6731 x 5256
-    is_different = is_one_of_these_denizens(
-        {
-            "Vow of Union",
-            "Giant Python",
-            "Forest Council",
-            "Keep",
-            "City Wall",
-        }
-    )
+    is_different = is_one_of_these_denizens({"Forgotten Vault", "Council Arbiter"})
 
     def filter(*args) -> bool:
         return is_new_denizen(*args)  # and is_different(*args)
+
+    def warband_race_filter(*args) -> bool:
+        return is_one_of_these_denizens(
+            {
+                "Downtrodden",
+                "Memory of Home",
+                "Defame",
+                "Wolves",
+                "Rowdy Pub",
+                "Gambling Hall",
+                "Elders",
+                "Spirit Snare",
+            }
+        )(*args)
 
     retile(
         denizen_portrait_dims,
@@ -217,6 +223,7 @@ def do_edifices():
                 sorted(glob.glob("input/Edifice*Ruined.jpg")),
             ),
             # {1, 17},
+            # {54, 30, 56},
         ),
         (4, 2),
         "wip/edifices-portrait-*.png",
@@ -635,11 +642,19 @@ def do_relics():
     # 6731 x 3365 (plus other rows beneath)
     retile(
         relic_dims,
-        filter_by_idx_not(
-            load_subimages(relic_dims, (10, 5), sorted(glob.glob("input/Relics*.jpg"))),
-            {32, 37, 40},
-        ),  # filter out "Delete this card and draw a new Relic" relics
-        # {2, 5, 7, 10, 20, 24, 27, 28, 29, 31, 34, 45, 46, 49},
+        id(
+            filter_by_idx_not(
+                load_subimages(
+                    relic_dims, (10, 5), sorted(glob.glob("input/Relics*.jpg"))
+                ),
+                {  # filter out "Delete this card and draw a new Relic" relics
+                    32,
+                    37,
+                    40,
+                },
+            ),
+            # {2, 5, 7, 10, 20, 24, 27, 28, 29, 31, 34, 45, 46, 49},
+        ),
         (3, 4),
         "wip/relics-*.png",
     )

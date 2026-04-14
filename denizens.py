@@ -99,7 +99,12 @@ def is_one_of_these_denizens(
     def filter(src_img, subimage_size, card_idxs) -> bool:
         d = img_denizen(src_img, card_idxs)
         if d == None:
-            raise ValueError(f"Could not determine denizen for image {src_img}")
+            # Getting this when running off the right of the bottom row of the sheet.
+            # src_img.save("wip/debug_denizen_error.png")
+            # raise ValueError(
+            #     f"Could not determine denizen for image {src_img}, {card_idxs}"
+            # )
+            return False
         else:
             return d.name in names
 
