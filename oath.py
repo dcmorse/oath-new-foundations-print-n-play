@@ -80,6 +80,7 @@ new_foundation_tasks = set(
         "site-backs",
         "usurper-limiter",
         "visions",
+        "vision-backs",
     ]
 )
 
@@ -803,6 +804,24 @@ def do_usurper_limiter():
 
 def do_visions():
     typeset_landscape_bridge_cards(["input/Visions.jpg"], "output/visions.pdf")
+
+
+def do_vision_backs():
+    dims = (651, 1016)
+    retile(
+        dims,
+        5 * [Image.open("input/vision-back.jpg")],
+        (4, 2),
+        "wip/vision-backs-portrait-*.png",
+    ),
+    portrait_to_landscape(glob.glob("wip/vision-backs-portrait-*.png"))
+    typeset_landscape_bridge_cards(
+        sorted(glob.glob("wip/vision-backs-landscape*.png")),
+        "output/vision-backs.pdf",
+    )
+    # typeset_landscape_bridge_cards(
+    #     ["input/vision-backs.jpg"] * 5, "output/vision-backs.pdf"
+    # )
 
 
 def main():
