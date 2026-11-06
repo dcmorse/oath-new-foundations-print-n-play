@@ -218,10 +218,10 @@ def do_edifices():
                 (5, 1),
                 (
                     e
-                    for e in sorted(glob.glob("input/Edifice*.jpg"))
+                    for e in sorted(glob.glob("input/edifice*.jpg"))
                     if not re.search(r"ruined", e, re.IGNORECASE)
                 ),
-                sorted(glob.glob("input/Edifice*Ruined.jpg")),
+                sorted(glob.glob("input/edifice*ruined.jpg")),
             ),
             # {1, 17},
             # {54, 30, 56},
