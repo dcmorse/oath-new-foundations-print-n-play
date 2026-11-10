@@ -24,7 +24,13 @@ DATA_DIR = os.path.join(BGS_DIR, "content", "card-data", "oath", LOCALE)
 IMAGE_DIR = os.path.join(BGS_DIR, "content", "card-images", "oath", LOCALE)
 
 # The three data files, in a stable order.
-DATA_FILES = ["oathbasegame.yml", "denizen-deck.yml", "oath-newfoundations.yml"]
+DATA_FILES = [
+    "oathbasegame.yml",
+    "denizen-deck.yml",
+    "oath-newfoundations.yml",
+    "oath-clockwork.yml",  # Servant and Queen of Shadows
+]
+CLOCKWORK_FILE = "oath-clockwork.yml"
 
 SUITS = ["Arcane", "Beast", "Discord", "Hearth", "Nomad", "Order"]
 
@@ -96,12 +102,31 @@ def by_id() -> Dict[str, Card]:
 
 
 def cards_tagged(tag: str, *, nf: bool = True) -> List[Card]:
-    """Cards with `tag`. nf=True: from the New Foundations files; nf=False: base game file."""
+    """Cards with `tag`. nf=True: from the New Foundations files; nf=False: base game file.
+    Clockwork (Servant / Queen of Shadows) cards are not included; see clockwork_cards."""
     return [
         c
         for c in all_cards()
-        if tag in c.tags and (c.source == "oathbasegame.yml") != nf
+        if tag in c.tags
+        and c.source != CLOCKWORK_FILE
+        and (c.source == "oathbasegame.yml") != nf
     ]
+
+
+def clockwork_cards(tag: str, *, nf: bool = False) -> List[Card]:
+    """Clockwork cards with `tag`, in id order. nf=True selects the New Foundations
+    variants of Servant cards (tagged "New Foundations"); nf=False the base-game ones.
+    Queen of Shadows cards have no NF variants and are untagged: pass nf=False."""
+    return sorted(
+        (
+            c
+            for c in all_cards()
+            if c.source == CLOCKWORK_FILE
+            and tag in c.tags
+            and ("New Foundations" in c.tags) == nf
+        ),
+        key=lambda c: c.id,
+    )
 
 
 # --- Denizens -----------------------------------------------------------------

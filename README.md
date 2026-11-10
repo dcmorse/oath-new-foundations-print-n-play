@@ -1,7 +1,7 @@
 # Oath Fan Made Print and Play
 
 This converts card images from the [Buried Giant Studios card repo](https://github.com/buriedgiantstudios/cards/) (BGS) into printable PDFs.
-Card backs and a few non-card items (player boards, tokens, reference cards, Queen of Shadows, Servant) aren't in BGS, so those still come from Tabletop Simulator (TTS) cache files.
+Card fronts for the base game, New Foundations, the Servant and the Queen of Shadows come from BGS. Card backs, boards, tokens and a few other items aren't in BGS, so those still come from Tabletop Simulator (TTS) cache files.
 
 At time of writing Oath New Foundations is not widely available, but the design has been fixed for some time.
 We're able to play in Tabletop Simulator (TTS) now, but what about playing over the board?

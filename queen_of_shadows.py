@@ -9,6 +9,8 @@ from typesetting_helpers import (
     typeset_landscape_bridge_cards,
 )
 from PIL import Image, ImageOps
+import bgs_cards
+from typesetting_helpers import card_images, retile_cards
 
 
 def do_qos_altars():
@@ -80,15 +82,8 @@ def do_qos_priority_tokens():
 
 
 def do_qos_darkness_cards():
-    card_dims = (673, 1051)
-    retile(
-        card_dims,
-        load_subimages(
-            card_dims,
-            (6, 5),
-            ["input/queen-of-shadows/darkness-cards.png"],
-            filter=image_middle_not_all_white,
-        ),
+    retile_cards(
+        card_images(bgs_cards.clockwork_cards("Darkness")),
         (4, 2),
         "wip/queen-of-shadows/darkness-cards-portrait-*.png",
     )
@@ -249,18 +244,9 @@ def do_qos_prisoner_tiles_helper(*, light_mode=False):
 
 
 def do_qos_shadow_cards():
-    # 4713x5256
-    # 7x5
-    command_card_dims = (673, 1051)
-    retile(
-        command_card_dims,
-        load_subimages(
-            command_card_dims,
-            (7, 5),
-            [
-                "input/queen-of-shadows/shadow-card-fronts.png"
-            ],  # ignore the card backs: not worth the fuss
-        ),
+    # fronts only: ignore the card backs, not worth the fuss
+    retile_cards(
+        card_images(bgs_cards.clockwork_cards("Shadow")),
         (4, 2),
         "wip/queen-of-shadows/shadow-cards-portrait-*.png",
     )

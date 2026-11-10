@@ -18,6 +18,9 @@ from retile import (
     filter_by_idx_not,
 )
 from typesetting_helpers import (
+    card_images,
+    retile_cards,
+    img2pdf_pages,
     do_tarot_cards,
     tarot_landscape_dims,
     landscape_to_portrait,
@@ -57,39 +60,6 @@ def _card_order(c: "bgs_cards.Card"):
     """Sort key: suit (if any), then the card number embedded in the id."""
     m = re.search(r"\d+", c.id)
     return (bgs_cards.SUITS.index(c.suit) if c.suit else -1, int(m.group()) if m else 0, c.id)
-
-
-def card_images(cards: Iterable["bgs_cards.Card"]) -> List[Image.Image]:
-    return [c.load() for c in cards]
-
-
-def retile_cards(
-    images: Iterable[Image.Image], dst_dims, dst_glob: str, *, rotate_cw: bool = False
-) -> None:
-    """Lay equally-sized card images out in pages of dst_dims (cols, rows), writing
-    dst_glob.  Stray images of another size are resized to match the first.
-    Stale pages from earlier runs are removed first."""
-    imgs = list(images)
-    if rotate_cw:
-        imgs = [i.rotate(-90, expand=True) for i in imgs]
-    size = imgs[0].size
-    for k, img in enumerate(imgs):
-        if img.size != size:
-            print(f"warning: resizing image {k} from {img.size} to {size}")
-            imgs[k] = img.resize(size, resample=Image.LANCZOS)
-    for stale in set(glob.glob(dst_glob)) | set(
-        glob.glob(dst_glob.replace("-portrait", "-landscape"))
-    ):
-        os.remove(stale)
-    retile(size, imgs, dst_dims, dst_glob)
-
-
-def img2pdf_pages(imgsize: str, dst: str, pages: Iterable[str]) -> None:
-    subprocess.run(
-        ["img2pdf", "--pagesize", "letter", "--imgsize", imgsize, "--fit", "shrink",
-         "-o", dst, *pages],
-        check=True,
-    )
 
 
 new_foundation_tasks = set(
