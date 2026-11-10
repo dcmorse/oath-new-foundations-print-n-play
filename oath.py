@@ -10,7 +10,7 @@ import subprocess
 import re
 import math
 from retile import (
-    retile,
+    tile,
     image_middle_not_all_white,
     load_subimages,
     load_images_2up,
@@ -19,7 +19,6 @@ from retile import (
 )
 from typesetting_helpers import (
     card_images,
-    retile_cards,
     img2pdf_pages,
     do_tarot_cards,
     tarot_landscape_dims,
@@ -142,7 +141,7 @@ denizen_portrait_dims = (673, 1051)  # TTS-rip card size; still used for backs
 
 
 def do_new_denizens():
-    retile_cards(
+    tile(
         card_images(sorted(bgs_cards.new_foundations_denizens(), key=_card_order)),
         (4, 2),
         "wip/new-denizens-portrait-*.png",
@@ -155,11 +154,11 @@ def do_new_denizens():
 
 def do_new_denizen_backs():
     dims = (337, 526)
-    retile(
-        dims,
+    tile(
         60 * [Image.open("input/denizen-back.jpg")],
         (4, 2),
         "wip/new-denizen-backs-portrait-*.png",
+        size=dims,
     ),
     portrait_to_landscape(glob.glob("wip/new-denizen-backs-portrait-*.png"))
     typeset_landscape_bridge_cards(
@@ -169,7 +168,7 @@ def do_new_denizen_backs():
 
 
 def do_unchanged_denizens():
-    retile_cards(
+    tile(
         card_images(sorted(bgs_cards.unchanged_denizens(), key=_card_order)),
         (4, 2),
         "wip/base/unchanged-denizens-portrait-*.png",
@@ -186,7 +185,7 @@ def do_edifices():
     imgs = []
     for intact, ruined in bgs_cards.edifice_pairs():
         imgs += [intact.load(), ruined.load()]
-    retile_cards(imgs, (4, 2), "wip/edifices-portrait-*.png")
+    tile(imgs, (4, 2), "wip/edifices-portrait-*.png")
     portrait_to_landscape(glob.glob("wip/edifices-portrait-*.png"))
     typeset_landscape_bridge_cards(
         sorted(glob.glob("wip/edifices-landscape*.png")), "output/edifices.pdf"
@@ -212,7 +211,7 @@ def do_banner_token():
 
 
 def do_banners():
-    retile_cards(
+    tile(
         card_images(
             # Darkest Secret banners on the top row, People's Favor below
             sorted(
@@ -243,7 +242,7 @@ def do_chronicle_tasks():
     imgs = []
     for c in fronts:
         imgs += [c.load(), bgs_cards.by_id()[c.flip_side].load() if c.flip_side else next(art_backs)]
-    retile_cards(imgs, (2, 2), "wip/chronicle-tasks-*.png")
+    tile(imgs, (2, 2), "wip/chronicle-tasks-*.png")
     img2pdf_pages("5.5inx9.5in", "output/chronicle-tasks.pdf",
                   sorted(glob.glob("wip/chronicle-tasks-*.png")))
 
@@ -268,8 +267,7 @@ def do_first_player_marker():
 
 def do_imperial_reliquary():
     imperial_reliquary_dims = (661, 661)
-    retile(
-        imperial_reliquary_dims,
+    tile(
         load_images_2up(
             imperial_reliquary_dims,
             (1, 1),
@@ -278,6 +276,7 @@ def do_imperial_reliquary():
         ),
         (2, 1),
         "wip/imperial-reliquary-*.png",
+        size=imperial_reliquary_dims,
     )
     subprocess.run(
         [
@@ -308,7 +307,7 @@ def do_setup_cards():
     imgs = []
     for c in fronts:
         imgs += [c.load(), bgs_cards.by_id()[c.flip_side].load() if c.flip_side else art_back]
-    retile_cards(imgs, (4, 2), "wip/setup-cards-portrait-*.png")
+    tile(imgs, (4, 2), "wip/setup-cards-portrait-*.png")
     portrait_to_landscape(glob.glob("wip/setup-cards-portrait-*.png"))
     img2pdf_pages("7inx9in", "output/setup-cards.pdf",
                   sorted(glob.glob("wip/setup-cards-landscape*.png")))
@@ -318,7 +317,7 @@ legacy_src_size = (6, 6)
 
 
 def do_legacies():
-    retile_cards(
+    tile(
         card_images(sorted(bgs_cards.cards_tagged("Legacy"), key=lambda c: c.id)),
         (2, 4),
         "wip/legacies-portrait-*.png",
@@ -331,8 +330,7 @@ def do_legacies():
 def do_legacy_backs():
     m, n = denizen_portrait_dims
     src_dims = (n, m)
-    retile(
-        src_dims,
+    tile(
         load_subimages(
             src_dims,
             (1, 1),
@@ -340,6 +338,7 @@ def do_legacy_backs():
         ),
         (2, 4),
         "wip/legacy-backs-portrait-*.png",
+        size=src_dims,
     )
     typeset_landscape_bridge_cards(
         sorted(glob.glob("wip/legacy-backs-portrait*.png")), "output/legacy-backs.pdf"
@@ -350,7 +349,7 @@ def do_legacy_backs():
 # def do_dormant_legacy_backs():
 #     m, n = denizen_portrait_dims
 #     src_dims = (n, m)
-#     retile(
+#     tile(
 #         src_dims,
 #         load_subimages(
 #             src_dims,
@@ -367,7 +366,7 @@ def do_legacy_backs():
 
 
 def do_oathkeeper_goals():
-    retile_cards(
+    tile(
         card_images(sorted(bgs_cards.cards_tagged("Oathkeeper Goal"), key=lambda c: c.id)),
         (2, 2),
         "wip/oathkeeper-goals-*.png",
@@ -378,15 +377,15 @@ def do_oathkeeper_goals():
 
 def do_oathkeeper_goal_backs():
     src_dims = (673, 898)
-    retile(
-        src_dims,
+    tile(
         load_subimages(
             src_dims,
             (1, 1),
             ["input/oathkeeper-goal-back.jpg"] * 4,
         ),
-        dst_dims=(2, 2),
-        dst_glob="wip/oathkeeper-goal-backs-*.png",
+        (2, 2),
+        "wip/oathkeeper-goal-backs-*.png",
+        size=src_dims,
     )
     subprocess.run(
         [
@@ -406,15 +405,15 @@ def do_oathkeeper_goal_backs():
 
 def do_oathkeeper_title():
     src_dims = (602, 829)
-    retile(
-        src_dims,
+    tile(
         load_subimages(
             src_dims,
             (1, 1),
             glob.glob("input/*per-title.jpg"),  # {oathkee,usur}per-title
         ),
-        dst_dims=(2, 1),
-        dst_glob="wip/oathkeeper-title-*.png",
+        (2, 1),
+        "wip/oathkeeper-title-*.png",
+        size=src_dims,
     )
     subprocess.run(
         [
@@ -436,8 +435,7 @@ def do_player_boards():
     # 4701 x 4488
     # A vision is about is 646 x 1029 at this scale and also 2.25" x 3.5"
     src_dims = (2350, 1122)
-    retile(
-        src_dims,
+    tile(
         id(
             load_images_2up(
                 src_dims,
@@ -449,6 +447,7 @@ def do_player_boards():
         ),
         (1, 2),
         "wip/player-boards-landscape-*.png",
+        size=src_dims,
     )
     landscape_to_portrait(glob.glob("wip/player-boards-landscape-*.png"))
     subprocess.run(
@@ -492,11 +491,11 @@ def do_relic_backs():
     img = huge_img.resize(
         (huge_img.width // 2, huge_img.height // 2), resample=Image.BOX
     )
-    retile(
-        (img.width, img.height),
+    tile(
         47 * [img],
         (3, 4),
         "wip/relic-backs-*.png",
+        size=(img.width, img.height),
     )
     subprocess.run(
         [
@@ -521,7 +520,7 @@ GRAND_SCEPTER_ID = "OATH-GrandScepter-NF"
 def do_relics():
     relics = [c for c in sorted(bgs_cards.cards_tagged("Relic"), key=lambda c: c.id)
               if c.id != GRAND_SCEPTER_ID]
-    retile_cards(card_images(relics), (3, 4), "wip/relics-*.png")
+    tile(card_images(relics), (3, 4), "wip/relics-*.png")
     img2pdf_pages("6.75inx9in", "output/relics.pdf", sorted(glob.glob("wip/relics-*.png")))
 
 
@@ -530,7 +529,7 @@ def do_relic_grand_scepter():
     # is from the TTS rip.
     front = bgs_cards.by_id()[GRAND_SCEPTER_ID].load()
     back = Image.open("input/Relic The Grand Scepter 1.jpg").convert("RGB")
-    retile_cards([front, back], (2, 1), "wip/relic-grand-scepter-*.png")
+    tile([front, back], (2, 1), "wip/relic-grand-scepter-*.png")
     img2pdf_pages("4.5inx3.5in", "output/relic-grand-scepter.pdf",
                   sorted(glob.glob("wip/relic-grand-scepter-*.png")))
 
@@ -544,7 +543,7 @@ def do_relic_grand_scepter():
 
 
 def do_sites():
-    retile_cards(
+    tile(
         card_images(sorted(bgs_cards.cards_tagged("Site"), key=lambda c: c.id)),
         (2, 2),
         "wip/sites-landscape-*.png",
@@ -557,11 +556,11 @@ def do_site_backs():
     site_back_dims = (1313, 1016)
     back = Image.open("input/site-back.jpg")
     for nup in [1, 4]:
-        retile(
-            site_back_dims,
+        tile(
             nup * [back],
             (2, 2),
             f"wip/site-backs-{nup}up-landscape-*.png",
+            size=site_back_dims,
         )
     landscape_to_portrait(glob.glob("wip/site-backs-1up-landscape-*.png"))
     landscape_to_portrait(glob.glob("wip/site-backs-4up-landscape-*.png"))
@@ -610,7 +609,7 @@ def do_usurper_limiter():
 def do_visions():
     # BGS stores visions landscape ("rotated"); the physical card is portrait with
     # the text running top-to-bottom, so rotate clockwise.
-    retile_cards(
+    tile(
         card_images(sorted(bgs_cards.cards_tagged("Vision"), key=lambda c: c.id)),
         (3, 2),
         "wip/visions-*.png",
@@ -621,11 +620,11 @@ def do_visions():
 
 def do_vision_backs():
     dims = (651, 1016)
-    retile(
-        dims,
+    tile(
         5 * [Image.open("input/vision-back.jpg")],
         (4, 2),
         "wip/vision-backs-portrait-*.png",
+        size=dims,
     ),
     portrait_to_landscape(glob.glob("wip/vision-backs-portrait-*.png"))
     typeset_landscape_bridge_cards(

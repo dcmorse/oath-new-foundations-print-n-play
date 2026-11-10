@@ -3,12 +3,12 @@ import subprocess
 from typing import Literal
 from PIL import Image
 import bgs_cards
+from retile import tile
 from typesetting_helpers import (
     card_images,
     img2pdf_pages,
     landscape_to_portrait,
     portrait_to_landscape,
-    retile_cards,
 )
 import shutil
 
@@ -23,7 +23,7 @@ def _is_nf(servant_dir: ServantDir) -> bool:
 
 def do_servant_commands(servant_dir: ServantDir):
     cards = bgs_cards.clockwork_cards("Command", nf=_is_nf(servant_dir))
-    retile_cards(
+    tile(
         card_images(cards), (4, 2), f"wip/{servant_dir}/commands-portrait-*.png"
     )
     portrait_to_landscape(glob.glob(f"wip/{servant_dir}/commands-portrait-*.png"))
@@ -80,7 +80,7 @@ def do_servant_nf_display_board():
 
 def do_servant_moods(servant_dir: ServantDir):
     cards = bgs_cards.clockwork_cards("Mood", nf=_is_nf(servant_dir))
-    retile_cards(card_images(cards), (4, 2), f"wip/{servant_dir}/moods-portrait-*.png")
+    tile(card_images(cards), (4, 2), f"wip/{servant_dir}/moods-portrait-*.png")
     portrait_to_landscape(glob.glob(f"wip/{servant_dir}/moods-portrait-*.png"))
     img2pdf_pages(
         "7inx9in",
@@ -113,7 +113,7 @@ def do_servant_reference_cards(servant_dir: ServantDir):
             c.load(),
             bgs_cards.by_id()[c.flip_side].load() if c.flip_side else stone_back,
         ]
-    retile_cards(imgs, (4, 2), f"wip/{servant_dir}/reference-cards-portrait-*.png")
+    tile(imgs, (4, 2), f"wip/{servant_dir}/reference-cards-portrait-*.png")
     portrait_to_landscape(
         glob.glob(f"wip/{servant_dir}/reference-cards-portrait-*.png")
     )

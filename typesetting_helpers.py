@@ -1,9 +1,8 @@
 import glob
-import os
 from typing import Iterable, List, Tuple
 import subprocess
 from PIL import Image
-from retile import load_subimages, retile, truly
+from retile import load_subimages, tile, truly
 
 
 def landscape_to_portrait(src_filenames: Iterable[str], *, ccw: bool = False):
@@ -59,11 +58,11 @@ def do_tarot_cards(
     filter=truly,
 ):
     wip_glob_name = f"wip/{basename}-*.png"
-    retile(
-        tarot_landscape_dims,
+    tile(
         load_subimages(tarot_landscape_dims, src_dims, src_filenames, filter=filter),
         (2, 2),
         wip_glob_name,
+        size=tarot_landscape_dims,
     )
     subprocess.run(
         [
@@ -84,27 +83,6 @@ def do_tarot_cards(
 
 def card_images(cards: Iterable) -> List[Image.Image]:
     return [c.load() for c in cards]
-
-
-def retile_cards(
-    images: Iterable[Image.Image], dst_dims, dst_glob: str, *, rotate_cw: bool = False
-) -> None:
-    """Lay equally-sized card images out in pages of dst_dims (cols, rows), writing
-    dst_glob.  Stray images of another size are resized to match the first.
-    Stale pages from earlier runs are removed first."""
-    imgs = list(images)
-    if rotate_cw:
-        imgs = [i.rotate(-90, expand=True) for i in imgs]
-    size = imgs[0].size
-    for k, img in enumerate(imgs):
-        if img.size != size:
-            print(f"warning: resizing image {k} from {img.size} to {size}")
-            imgs[k] = img.resize(size, resample=Image.LANCZOS)
-    for stale in set(glob.glob(dst_glob)) | set(
-        glob.glob(dst_glob.replace("-portrait", "-landscape"))
-    ):
-        os.remove(stale)
-    retile(size, imgs, dst_dims, dst_glob)
 
 
 def img2pdf_pages(imgsize: str, dst: str, pages: Iterable[str]) -> None:

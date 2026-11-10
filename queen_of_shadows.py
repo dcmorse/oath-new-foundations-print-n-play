@@ -1,6 +1,6 @@
 import glob
 import subprocess
-from retile import load_images_2up, load_subimages, retile, image_middle_not_all_white
+from retile import load_images_2up, load_subimages, tile, image_middle_not_all_white
 from typesetting_helpers import (
     do_tarot_cards,
     landscape_to_portrait,
@@ -10,13 +10,12 @@ from typesetting_helpers import (
 )
 from PIL import Image, ImageOps
 import bgs_cards
-from typesetting_helpers import card_images, retile_cards
+from typesetting_helpers import card_images
 
 
 def do_qos_altars():
     altar_dims = (378, 497)
-    retile(
-        altar_dims,
+    tile(
         load_subimages(
             altar_dims,
             (1, 1),
@@ -24,6 +23,7 @@ def do_qos_altars():
         ),
         (4, 2),
         "wip/queen-of-shadows/altars-light-*.png",
+        size=altar_dims,
     )
     for light_path in glob.glob("wip/queen-of-shadows/altars-light-*.png"):
         img = Image.open(light_path).convert("RGB")
@@ -49,8 +49,7 @@ def do_qos_altars():
 
 def do_qos_priority_tokens():
     token_dims = (355, 355)
-    retile(
-        token_dims,
+    tile(
         load_subimages(
             token_dims,
             (1, 1),
@@ -58,6 +57,7 @@ def do_qos_priority_tokens():
         ),
         (4, 2),
         "wip/queen-of-shadows/priority-tokens-light-*.png",
+        size=token_dims,
     )
     for light_path in glob.glob("wip/queen-of-shadows/priority-tokens-light-*.png"):
         img = Image.open(light_path).convert("RGB")
@@ -82,7 +82,7 @@ def do_qos_priority_tokens():
 
 
 def do_qos_darkness_cards():
-    retile_cards(
+    tile(
         card_images(bgs_cards.clockwork_cards("Darkness")),
         (4, 2),
         "wip/queen-of-shadows/darkness-cards-portrait-*.png",
@@ -99,8 +99,7 @@ def do_qos_darkness_cards():
 def do_qos_darkness_track():
     # Ideally 4.75" x 11", but scaled it down to fit on letter paper with some margins
     darkness_track_dims = (3142, 1264)
-    retile(
-        darkness_track_dims,
+    tile(
         load_subimages(
             darkness_track_dims,
             (1, 1),
@@ -108,6 +107,7 @@ def do_qos_darkness_track():
         ),
         (1, 1),
         "wip/queen-of-shadows/darkness-track-landscape-*.png",
+        size=darkness_track_dims,
     )
     landscape_to_portrait(
         glob.glob("wip/queen-of-shadows/darkness-track-landscape-*.png")
@@ -130,8 +130,7 @@ def do_qos_darkness_track():
 
 
 def do_qos_chronicle_tasks():
-    retile(
-        tarot_landscape_dims,
+    tile(
         load_images_2up(
             tarot_landscape_dims,
             (5, 1),
@@ -141,6 +140,7 @@ def do_qos_chronicle_tasks():
         ),
         (2, 2),
         "wip/queen-of-shadows/chronicle-tasks-*.png",
+        size=tarot_landscape_dims,
     )
     subprocess.run(  # shared DNA with do_tarot_cards...
         [
@@ -162,8 +162,7 @@ def do_qos_chronicle_tasks():
 def do_qos_player_board():
     # Ideally 4.75" x 11", but scaled it down to fit on letter paper with some margins
     player_board_dims = (3142, 1264)
-    retile(
-        player_board_dims,
+    tile(
         load_subimages(
             player_board_dims,
             (1, 1),
@@ -171,6 +170,7 @@ def do_qos_player_board():
         ),
         (1, 1),
         "wip/queen-of-shadows/player-board-landscape-*.png",
+        size=player_board_dims,
     )
     landscape_to_portrait(
         glob.glob("wip/queen-of-shadows/player-board-landscape-*.png")
@@ -201,8 +201,7 @@ def do_qos_prisoner_tiles_helper(*, light_mode=False):
         img = Image.open(f"input/queen-of-shadows/prisoner-{state}.png")
         inverted = ImageOps.invert(img.convert("RGB")) if light_mode else img
         inverted.save(f"wip/queen-of-shadows/prisoner-{state}-{mode}.png")
-    retile(
-        prisoner_tile_dims,
+    tile(
         load_subimages(
             prisoner_tile_dims,
             (1, 1),
@@ -220,6 +219,7 @@ def do_qos_prisoner_tiles_helper(*, light_mode=False):
         ),
         (4, 6),
         f"wip/queen-of-shadows/prisoner-tiles-{mode}-portrait-*.png",
+        size=prisoner_tile_dims,
     )
     portrait_to_landscape(
         glob.glob(f"wip/queen-of-shadows/prisoner-tiles-{mode}-portrait-*.png")
@@ -245,7 +245,7 @@ def do_qos_prisoner_tiles_helper(*, light_mode=False):
 
 def do_qos_shadow_cards():
     # fronts only: ignore the card backs, not worth the fuss
-    retile_cards(
+    tile(
         card_images(bgs_cards.clockwork_cards("Shadow")),
         (4, 2),
         "wip/queen-of-shadows/shadow-cards-portrait-*.png",
@@ -262,8 +262,7 @@ def do_qos_title_cards():
     # 6x2
     # 661x898
     title_card_dims = (661, 898)
-    retile(
-        title_card_dims,
+    tile(
         load_subimages(
             title_card_dims,
             (6, 2),
@@ -272,6 +271,7 @@ def do_qos_title_cards():
         ),
         (4, 2),
         "wip/queen-of-shadows/title-cards-portrait-*.png",
+        size=title_card_dims,
     )
     portrait_to_landscape(
         glob.glob("wip/queen-of-shadows/title-cards-portrait-*.png"), ccw=True
@@ -284,8 +284,7 @@ def do_qos_title_cards():
 
 def do_qos_ruse_token():
     token_dims = (473, 473)
-    retile(
-        token_dims,
+    tile(
         load_subimages(
             token_dims,
             (1, 1),
@@ -293,6 +292,7 @@ def do_qos_ruse_token():
         ),
         (2, 1),
         "wip/queen-of-shadows/ruse-token-*.png",
+        size=token_dims,
     )
     subprocess.run(
         [
