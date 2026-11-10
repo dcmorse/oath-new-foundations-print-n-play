@@ -9,4 +9,4 @@ python namer.py
 python oath.py --new-foundations --servant-nf --servant-base --queen-of-shadows --base
 ./make-scorepad-from-pdf
 rm -rf wip/*.* wip/*/*.*
-tar -zcf "releases/$(date -u +%Y-%m-%d-%H%M%S).tar.gz" output/ input/
+tar -zcf "releases/$(date -u +%Y-%m-%d-%H%M%S).tar.gz" output/ input/ bgs-cards/
