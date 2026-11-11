@@ -1,7 +1,8 @@
 import glob
-from typing import Iterable, Tuple
+from typing import Iterable, List, Tuple
 import subprocess
-from retile import load_subimages, retile, truly
+from PIL import Image
+from retile import load_subimages, tile, truly
 
 
 def landscape_to_portrait(src_filenames: Iterable[str], *, ccw: bool = False):
@@ -57,11 +58,11 @@ def do_tarot_cards(
     filter=truly,
 ):
     wip_glob_name = f"wip/{basename}-*.png"
-    retile(
-        tarot_landscape_dims,
+    tile(
         load_subimages(tarot_landscape_dims, src_dims, src_filenames, filter=filter),
         (2, 2),
         wip_glob_name,
+        size=tarot_landscape_dims,
     )
     subprocess.run(
         [
@@ -76,5 +77,17 @@ def do_tarot_cards(
             f"output/{basename}.pdf",
             *sorted(glob.glob(wip_glob_name)),
         ],
+        check=True,
+    )
+
+
+def card_images(cards: Iterable) -> List[Image.Image]:
+    return [c.load() for c in cards]
+
+
+def img2pdf_pages(imgsize: str, dst: str, pages: Iterable[str]) -> None:
+    subprocess.run(
+        ["img2pdf", "--pagesize", "letter", "--imgsize", imgsize, "--fit", "shrink",
+         "-o", dst, *pages],
         check=True,
     )
